@@ -1,0 +1,16 @@
+* Emacs HDF5 Viewer Mode
+
+** Installation notes
+
+~pip install h5py~
+
+~(require 'emacs-hdf5)~
+
+** keybindings
+
+| read-field-at-cursor         | RET, SPC      |
+| read-field                   | /             |
+| preview-field-at-cursor      | TAB           |
+| preview-field                | '             |
+| back (go up the tree)        | b, DEL, S-SPC |
+| copy field or attribute name | w             |
