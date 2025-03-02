@@ -62,13 +62,16 @@ class H5Instance:
         }
 
     def is_group(self, field: str) -> dict:
-        try:
+        true_or_false = False
+        if self.is_field(field):
             obj = self.instance[field]
             if isinstance(obj, h5py.Group):
                 return {"return": True}
-            return {"return": False}
-        except:
-            return {"return": False}
+        return {"return": true_or_false}
+
+    def is_field(self, field: str) -> dict:
+        true_or_false = field in self.instance
+        return {"return": true_or_false}
 
     def get_attrs(self, root: str) -> dict:
         obj = self.instance[root]
@@ -88,6 +91,8 @@ if __name__ == "__main__":
                         help='Print field data')
     parser.add_argument('--is-group', type=str,
                         help='Print true if field is group')
+    parser.add_argument('--is-field', type=str,
+                        help='Print true if field exists in file')
     args = parser.parse_args()
 
     inst = H5Instance(args.filepath)
@@ -103,6 +108,9 @@ if __name__ == "__main__":
         exit(0)
     if args.is_group:
         print(json.dumps(inst.is_group(args.is_group)))
+        exit(0)
+    if args.is_field:
+        print(json.dumps(inst.is_field(args.is_field)))
         exit(0)
     if args.get_attrs:
         print(json.dumps(inst.get_attrs(args.get_attrs)))

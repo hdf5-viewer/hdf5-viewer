@@ -73,6 +73,11 @@
   (let ((output (hdf5-parser-cmd "--is-group" field hdf5-mode-file)))
     (gethash "return" output)))
 
+(defun hdf5-is-field (field)
+  "Return t if FIELD is a field in the file."
+  (let ((output (hdf5-parser-cmd "--is-field" field hdf5-mode-file)))
+    (gethash "return" output)))
+
 (defun hdf5-parser-cmd (&rest args)
   "Run parser command with custom args and return json output"
   (with-temp-buffer
@@ -146,13 +151,14 @@
 (defun hdf5-preview-field (field)
   "Display selected field contents in message box"
   (interactive "sEnter path: ")
-  (let ((field  (hdf5-fix-path field))
-        (output (hdf5-parser-cmd "--preview-field" field hdf5-mode-file)))
-    (message (format "%s %s %s:\n%s"
-                     (propertize field 'face 'bold)
-                     (gethash "shape" output "")
-                     (gethash "dtype" output "")
-                     (gethash "data" output)))))
+  (when (hdf5-is-field field)
+    (let ((field  (hdf5-fix-path field))
+          (output (hdf5-parser-cmd "--preview-field" field hdf5-mode-file)))
+      (message (format "%s %s %s:\n%s"
+                       (propertize field 'face 'bold)
+                       (gethash "shape" output "")
+                       (gethash "dtype" output "")
+                       (gethash "data" output))))))
 
 (defun hdf5-read-field-at-cursor ()
   "Display field contents at cursor in new buffer"
@@ -164,25 +170,26 @@
   "Display specified field contents in new buffer"
   (interactive "sEnter path: ")
   (let ((field (hdf5-fix-path field)))
-    (if (hdf5-is-group field)
-        (progn
-          (setq-local hdf5-mode-root field)
-          (hdf5-display-fields))
-      (let ((output (hdf5-parser-cmd "--read-field" field hdf5-mode-file))
-            (data (gethash "data" output))
-            (parent-buf (current-buffer)))
-        (with-current-buffer (get-buffer-create (format "*%s%s*" parent-buf field))
-          (let ((inhibit-read-only t))
-            (erase-buffer)
-            (setq-local truncate-lines t)
-            (insert (format "%s %s %s:\n%s\n"
-                            (propertize field 'face 'bold)
-                            (gethash "shape" output)
-                            (gethash "dtype" output)
-                            (gethash "data" output)))
-            (goto-char (point-min))
-            (special-mode)
-            (display-buffer (current-buffer) '((display-buffer-same-window)))))))))
+    (when (hdf5-is-field field)
+      (if (hdf5-is-group field)
+          (progn
+            (setq-local hdf5-mode-root field)
+            (hdf5-display-fields))
+        (let ((output (hdf5-parser-cmd "--read-field" field hdf5-mode-file))
+              (data (gethash "data" output))
+              (parent-buf (current-buffer)))
+          (with-current-buffer (get-buffer-create (format "*%s%s*" parent-buf field))
+            (let ((inhibit-read-only t))
+              (erase-buffer)
+              (setq-local truncate-lines t)
+              (insert (format "%s %s %s:\n%s\n"
+                              (propertize field 'face 'bold)
+                              (gethash "shape" output)
+                              (gethash "dtype" output)
+                              (gethash "data" output)))
+              (goto-char (point-min))
+              (special-mode)
+              (display-buffer (current-buffer) '((display-buffer-same-window))))))))))
 
 (defun hdf5-copy-field-at-cursor ()
   "Interactively put field-at-cursor into the kill ring"
