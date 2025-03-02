@@ -194,9 +194,10 @@
 (defun hdf5-copy-field-at-cursor ()
   "Interactively put field-at-cursor into the kill ring"
   (interactive)
-  (let ((field-name (hdf5-get-field-at-cursor)))
+  (let* ((field-name (hdf5-get-field-at-cursor))
+         (field-type (if (hdf5-is-field field-name) "field" "attribute")))
     (kill-new field-name)
-    (message (format "Copied HD5 field: %s" field-name))))
+    (message (format "Copied HD5 %s name: %s" field-type field-name))))
 
 (define-derived-mode hdf5-mode special-mode "HDF5"
   "Major mode for viewing HDF5 files"
