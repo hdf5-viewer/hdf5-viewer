@@ -134,9 +134,7 @@
                    (insert (format template attrkey attrval "")))
                  attrs)))
     (goto-char (point-min))
-    (forward-line)
-    (forward-line)
-    (forward-line)
+    (forward-line 3)
     (set-buffer-modified-p nil)))
 
 (defun hdf5-preview-field-at-cursor ()
