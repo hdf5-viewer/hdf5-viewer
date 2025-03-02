@@ -11,7 +11,8 @@ def meta_dict(name: str, obj) -> dict:
         return {
             'type': 'group',
             'name': name,
-            'children': []
+            'children': [],
+            'attrs'   : {x[0]:str(x[1]) for x in obj.attrs.items()}
         }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
