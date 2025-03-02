@@ -92,7 +92,7 @@
                   (json-read))
               (json-readtable-error
                (error "Failed to read parser output: Invalid JSON"))))
-        (error "Parser script failed: %s" 
+        (error "Parser script failed: %s"
                (buffer-substring (point-min) (point-max)))))))
 
 (defun hdf5-back ()
@@ -116,16 +116,16 @@
     (insert (propertize (format template "*name*" "*dims*" "*type*")
                         'face '('bold 'underline)))
     (maphash (lambda (key val)
-               (setq type (gethash "type" val))
-               (if (string= type "group")
-                   (insert (format template
-                                   (format "%s/" key)
-                                   "N/A" "group"))
-                 (progn
-                   (setq shape (gethash "shape" val))
-                   (setq dtype (gethash "dtype" val))
-                   (insert (format template
-                                   key shape dtype)))))
+               (let ((type (gethash "type" val)))
+                 (cond ((string= type "group")
+                        (insert (format template
+                                        (format "%s/" key)
+                                        "N/A" "group")))
+                       ((string= type "dataset")
+                        (setq shape (gethash "shape" val))
+                        (setq dtype (gethash "dtype" val))
+                        (insert (format template
+                                        key shape dtype))))))
              output)
     (goto-char (point-min))
     (forward-line)
