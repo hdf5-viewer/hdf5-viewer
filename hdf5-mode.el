@@ -1,4 +1,6 @@
-;;; hdf5-mode.el --- Major mode for viewing HDF5 files
+;;; hdf5-mode.el --- Major mode for viewing HDF5 files -*- lexical-binding: t; -*-
+
+
 
 ;;; Commentary:
 ;; This package provides a major mode for viewing HDF5 files in Emacs.
@@ -7,8 +9,6 @@
 ;; in the same location as hdf5-mode.el.
 
 ;;; Code:
-
-(require 'python)
 (require 'json)
 
 (defgroup hdf5-mode nil
@@ -210,3 +210,5 @@
 (add-to-list 'auto-mode-alist '("\\.hdf5\\'" . hdf5-mode))
 
 (provide 'hdf5-mode)
+
+;;; hdf5-mode.el ends here
