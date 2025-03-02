@@ -1,6 +1,26 @@
 ;;; hdf5-mode.el --- Major mode for viewing HDF5 files -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2024-2025 Paul Minner, (Peter Mao -> Free Software Foundation, Inc.)
 
+;; Author: Paul Minner <minner.paul@gmail.com>, Peter Mao <peter.mao@gmail.com>
+;; Keywords: HDF5, data
+;; Version: 1.1
+;; Description: A major-mode for viewing HDF5 files.
+;; Homepage: https://github.com/paublo96/emacs-hdf5
+;; Package-Requires: ((emacs "27.1") (json "??"))
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; GNU Emacs is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;; This package provides a major mode for viewing HDF5 files in Emacs.
@@ -199,6 +219,7 @@
     (kill-new field-name)
     (message (format "Copied HD5 %s name: %s" field-type field-name))))
 
+;;;###autoload
 (define-derived-mode hdf5-mode special-mode "HDF5"
   "Major mode for viewing HDF5 files"
   (setq-local buffer-read-only t)
@@ -206,7 +227,9 @@
   (setq-local hdf5-mode-root "/")
   (hdf5-display-fields))
 
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.h5\\'" . hdf5-mode))
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.hdf5\\'" . hdf5-mode))
 
 (provide 'hdf5-mode)

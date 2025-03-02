@@ -4,7 +4,7 @@
 
 ~pip install h5py~
 
-~(require 'emacs-hdf5)~
+~(require 'hdf5-mode)~
 
 ** keybindings
 
