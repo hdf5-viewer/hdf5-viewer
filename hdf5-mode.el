@@ -175,9 +175,9 @@
           (progn
             (setq-local hdf5-mode-root field)
             (hdf5-display-fields))
-        (let ((output (hdf5-parser-cmd "--read-field" field hdf5-mode-file))
-              (data (gethash "data" output))
-              (parent-buf (current-buffer)))
+        (let* ((output (hdf5-parser-cmd "--read-field" field hdf5-mode-file))
+               (data (gethash "data" output))
+               (parent-buf (current-buffer)))
           (with-current-buffer (get-buffer-create (format "*%s%s*" parent-buf field))
             (let ((inhibit-read-only t))
               (erase-buffer)
