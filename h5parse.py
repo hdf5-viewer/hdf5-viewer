@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import h5py
-import numpy
+import numpy as np
 import json
 import sys
 import argparse
@@ -15,12 +15,22 @@ def meta_dict(obj) -> dict:
         }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
-        # if len(obj.shape) > 0:
-        #     shape = [int(x) for x in obj.shape]
+        if len(obj.shape) > 0:
+            shape = str(obj.shape)
+        try: # calculate the data range
+            datamin = np.nanmin(obj[:].reshape(-1))
+            datamax = np.nanmax(obj[:].reshape(-1))
+            if datamin == datamax:
+                datarange = f'{datamin:.4g}'
+            else:
+                datarange = f'{datamin:.3g}:{datamax:.3g}'
+        except: # take the 1st value if it's something weird
+            datarange = str(obj[:][0])
         return {
             'type': 'dataset',
             'name': obj.name,
-            'shape': str(obj.shape),
+            'shape': shape,
+            'range': datarange,
             'dtype': str(obj.dtype)
         }
     else:
