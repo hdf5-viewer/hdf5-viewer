@@ -79,39 +79,27 @@ class H5Instance:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('filepath', type=str,
-                        help='File to parse')
-    parser.add_argument('--get-fields', type=str,
-                        help='Print fields within group')
-    parser.add_argument('--get-attrs', type=str,
-                        help='Print attributes of parent to root')
-    parser.add_argument('--preview-field', type=str,
-                        help='Print preview of requested field')
-    parser.add_argument('--read-field', type=str,
-                        help='Print field data')
-    parser.add_argument('--is-group', type=str,
-                        help='Print true if field is group')
-    parser.add_argument('--is-field', type=str,
-                        help='Print true if field exists in file')
+    parser.add_argument('filepath'       , type=str, help='File to parse')
+    parser.add_argument('--get-fields'   , type=str, help='Print fields within group')
+    parser.add_argument('--get-attrs'    , type=str, help='Print attributes of parent to root')
+    parser.add_argument('--preview-field', type=str, help='Print preview of requested field')
+    parser.add_argument('--read-field'   , type=str, help='Print field data')
+    parser.add_argument('--is-group'     , type=str, help='Print true if field is group')
+    parser.add_argument('--is-field'     , type=str, help='Print true if field exists in file')
     args = parser.parse_args()
 
     inst = H5Instance(args.filepath)
 
     if args.get_fields:
         print(json.dumps(inst.get_fields(args.get_fields), indent=4))
-        exit(0)
-    if args.preview_field:
-        print(json.dumps(inst.preview_field(args.preview_field)))
-        exit(0)
-    if args.read_field:
-        print(json.dumps(inst.read_field(args.read_field)))
-        exit(0)
-    if args.is_group:
-        print(json.dumps(inst.is_group(args.is_group)))
-        exit(0)
-    if args.is_field:
-        print(json.dumps(inst.is_field(args.is_field)))
-        exit(0)
-    if args.get_attrs:
+    elif args.get_attrs:
         print(json.dumps(inst.get_attrs(args.get_attrs)))
-        exit(0)
+    elif args.preview_field:
+        print(json.dumps(inst.preview_field(args.preview_field)))
+    elif args.read_field:
+        print(json.dumps(inst.read_field(args.read_field)))
+    elif args.is_group:
+        print(json.dumps(inst.is_group(args.is_group)))
+    elif args.is_field:
+        print(json.dumps(inst.is_field(args.is_field)))
+    exit(0)
