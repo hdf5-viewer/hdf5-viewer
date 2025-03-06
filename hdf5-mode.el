@@ -32,11 +32,11 @@
 (require 'json)
 
 (defgroup hdf5-mode nil
-  "Major mode for viewing HDF5 files"
+  "Major mode for viewing HDF5 files."
   :group 'data)
 
 (defcustom hdf5-mode-python-command "python3"
-  "Python interpreter to execute h5parse.py. Must have h5py"
+  "Python interpreter to execute h5parse.py.  Must have h5py."
   :type 'string
   :group 'hdf5-mode)
 
@@ -44,7 +44,7 @@
   (format "%s %sh5parse.py"
           hdf5-mode-python-command
           (file-name-directory (or load-file-name (buffer-file-name))))
-  "Shell command to launch h5parse.py script"
+  "Shell command to launch h5parse.py script."
   :type 'string
   :group 'hdf5-mode)
 
@@ -62,16 +62,16 @@
     (define-key map (kbd "p")   'previous-line)
     (define-key map (kbd "w")   'hdf5-copy-field-at-cursor)
     map)
-  "Keymap for HDF5 mode")
+  "Keymap for HDF5 mode.")
 
 (defvar-local hdf5-mode-file nil
-  "Path to the current HDF5 file being viewed")
+  "Path to the current HDF5 file being viewed.")
 
 (defvar-local hdf5-mode-root nil
-  "Path to begin printing the current HDF5 file fields")
+  "Path to begin printing the current HDF5 file fields.")
 
 (defun hdf5-fix-path (path)
-  "Remove extraneous '/'s from path"
+  "Remove extraneous '/'s from PATH."
   (let ((fsplit (file-name-split path))
         (npath ""))
     (dolist (val fsplit)
@@ -83,14 +83,14 @@
     npath))
 
 (defun hdf5-get-field-at-cursor ()
-  "Return field at current cursor position"
+  "Return field (group or dataset) at cursor position."
   (end-of-line)
   (backward-word)
   (let ((field (thing-at-point 'filename t)))
     (hdf5-fix-path (concat hdf5-mode-root "/" field))))
 
 (defun hdf5-is-group (field)
-  "Return t if field is a group"
+  "Return t if FIELD is a group."
   (let ((output (hdf5-parser-cmd "--is-group" field hdf5-mode-file)))
     (gethash "return" output)))
 
@@ -100,7 +100,7 @@
     (gethash "return" output)))
 
 (defun hdf5-parser-cmd (&rest args)
-  "Run parser command with custom args and return json output"
+  "Run parser command with custom ARGS and return json output."
   (with-temp-buffer
     (let ((exit-code
            (apply #'call-process-shell-command
@@ -119,14 +119,14 @@
                (buffer-substring (point-min) (point-max)))))))
 
 (defun hdf5-back ()
-  "Go back one group level and display to screen"
+  "Go back one group level and display to screen."
   (interactive)
   (setq-local hdf5-mode-root
         (hdf5-fix-path (file-name-directory hdf5-mode-root)))
   (hdf5-display-fields))
 
 (defun hdf5-display-fields ()
-  "Display current root group fields to buffer"
+  "Display current root group fields to buffer."
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)
@@ -168,13 +168,13 @@
     (set-buffer-modified-p nil)))
 
 (defun hdf5-preview-field-at-cursor ()
-  "Display field contents at cursor in message box"
+  "Display field contents at cursor in minibuffer."
   (interactive)
   (let ((field (hdf5-get-field-at-cursor)))
     (hdf5-preview-field field)))
 
 (defun hdf5-preview-field (field)
-  "Display selected field contents in message box"
+  "Display selected FIELD contents in minibuffer."
   (interactive "sEnter path: ")
   (when (hdf5-is-field field)
     (let ((field  (hdf5-fix-path field))
@@ -186,13 +186,13 @@
                        (gethash "data" output))))))
 
 (defun hdf5-read-field-at-cursor ()
-  "Display field contents at cursor in new buffer"
+  "Display field contents at cursor in new buffer."
   (interactive)
   (let ((field (hdf5-get-field-at-cursor)))
     (hdf5-read-field field)))
 
 (defun hdf5-read-field (field)
-  "Display specified field contents in new buffer"
+  "Display specified FIELD contents in new buffer."
   (interactive "sEnter path: ")
   (let ((field (hdf5-fix-path field)))
     (when (hdf5-is-field field)
@@ -217,7 +217,7 @@
               (display-buffer (current-buffer) '((display-buffer-same-window))))))))))
 
 (defun hdf5-copy-field-at-cursor ()
-  "Interactively put field-at-cursor into the kill ring"
+  "Interactively put field-at-cursor into the kill ring."
   (interactive)
   (let* ((field-name (hdf5-get-field-at-cursor))
          (field-type (if (hdf5-is-field field-name) "field" "attribute")))
@@ -226,7 +226,7 @@
 
 ;;;###autoload
 (define-derived-mode hdf5-mode special-mode "HDF5"
-  "Major mode for viewing HDF5 files"
+  "Major mode for viewing HDF5 files."
   (setq-local buffer-read-only t)
   (setq-local hdf5-mode-file buffer-file-name)
   (setq-local hdf5-mode-root "/")
