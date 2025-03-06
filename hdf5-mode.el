@@ -108,7 +108,7 @@
       (if (= exit-code 0)
           (progn
             (goto-char (point-min))
-            (condition-case err
+            (condition-case nil
                 (let ((json-array-type 'list)
                       (json-object-type 'hash-table)
                       (json-false nil))
