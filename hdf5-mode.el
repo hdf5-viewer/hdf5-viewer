@@ -140,8 +140,7 @@
       (insert (propertize (format template "*type*" "*dims*" "*range*" "*name*")
                           'face '('bold 'underline)))
       (maphash (lambda (key val)
-                 (let ((type  (gethash "type"  val))
-                       (attrs (gethash "attrs" val nil)))
+                 (let ((type  (gethash "type"  val)))
                    (cond ((string= type "group")
                           (insert (format template
                                            "group" "N/A" ""
@@ -201,7 +200,6 @@
             (setq-local hdf5-mode-root field)
             (hdf5-display-fields))
         (let* ((output (hdf5-parser-cmd "--read-dataset" field hdf5-mode-file))
-               (data (gethash "data" output))
                (parent-buf (current-buffer)))
           (with-current-buffer (get-buffer-create (format "*%s%s*" parent-buf field))
             (let ((inhibit-read-only t))
