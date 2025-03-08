@@ -64,6 +64,13 @@
     map)
   "Keymap for HDF5 mode.")
 
+(defvar hdf5--buffer-filename nil
+  "Temporary variable to pass the hdf5 filename into hdf-mode.
+
+This avoids having to set the variable `buffer-file-name', which
+would run the risk of overwiting the HDF5 file that is being
+viewed.")
+
 (defvar-local hdf5-mode-file nil
   "Path to the current HDF5 file being viewed.")
 
@@ -200,8 +207,9 @@
             (setq-local hdf5-mode-root field)
             (hdf5-display-fields))
         (let* ((output (hdf5-parser-cmd "--read-dataset" field hdf5-mode-file))
-               (parent-buf (current-buffer)))
-          (with-current-buffer (get-buffer-create (format "*%s%s*" parent-buf field))
+               (parent-buf (format "%s" (current-buffer)))
+               (parent-nostars (substring parent-buf 1 (1- (length parent-buf)))))
+          (with-current-buffer (get-buffer-create (format "*%s%s*" parent-nostars field))
             (let ((inhibit-read-only t))
               (erase-buffer)
               (setq-local truncate-lines t)
@@ -226,14 +234,57 @@
 (define-derived-mode hdf5-mode special-mode "HDF5"
   "Major mode for viewing HDF5 files."
   (setq-local buffer-read-only t)
-  (setq-local hdf5-mode-file buffer-file-name)
+  (setq-local hdf5-mode-file hdf5--buffer-file-name)
   (setq-local hdf5-mode-root "/")
   (hdf5-display-fields))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.h5\\'" . hdf5-mode))
+(defun hdf5-mode--maybe-startup (&optional filename wildcards)
+  "Advice to avoid loading HDF5 files into the buffer.
+
+HDF5 files can be very large and hdf5-mode does not need the file
+contents to be loaded before operating on the file.  This advice
+looks for the HDF5 signature in the first 8 bytes of a file.  If
+it is not HDF5, then proceed with `find-file'.  If it is HDF5, then open a
+buffer named \"*hdf5: FILENAME*\" and start hdf5-mode.
+`find-file' is then bypassed.
+
+WILDCARDS is not used by this advice and is passed on to
+`find-file'.  This advice is also bypassed if FILENAME is not
+given to `find-file' a-priori, ie, this only works from `dired'."
+
+  (if (or wildcards (not (file-regular-p filename))) nil
+    (let ((hdf5-sign (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
+          (filehead (with-temp-buffer
+                     (set-buffer-multibyte nil)
+                     (insert-file-contents-literally filename nil 0 8 t)
+                     (buffer-substring-no-properties 1 9))))
+      (when (string= filehead hdf5-sign)
+        (let ((hdf5-buffer-name (concat "*hdf5: "
+                                        (file-name-nondirectory filename)
+                                        "*")))
+          ;; bug: need to set `default-directory' to directory of filename,
+          ;; otherwise, it will be the dir from which find-file is called.
+
+          ;; for later:
+          ;; if hdf5-buffer-name corresponds to an existing buffer
+          ;;    if (string= filename hdf5--buffer-file-name)
+          ;;       switch to buffer
+          ;;    else
+          ;;       create/switch to buffer with unique name
+          ;;       setq hdf5--buffer-file-name filename
+          ;;       (hdf5-mode)
+          ;; else run next 3 lines
+          (switch-to-buffer (get-buffer-create hdf5-buffer-name));; need to uniquify this name (later)
+          (setq hdf5--buffer-file-name filename) ;;hdf5-mode operates on hdf5--buffer-file-name
+          (hdf5-mode)
+          t))))) ;; bypass find-file
+
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.hdf5\\'" . hdf5-mode))
+(advice-add 'find-file :before-until #'hdf5-mode--maybe-startup)
+
+;; (add-to-list 'auto-mode-alist '("\\.h5\\'" . hdf5-mode))
+;; (add-to-list 'auto-mode-alist '("\\.hdf5\\'" . hdf5-mode))
 
 (provide 'hdf5-mode)
 
