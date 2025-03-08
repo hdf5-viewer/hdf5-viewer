@@ -263,9 +263,6 @@ given to `find-file' a-priori, ie, this only works from `dired'."
         (let ((hdf5-buffer-name (concat "*hdf5: "
                                         (file-name-nondirectory filename)
                                         "*")))
-          ;; bug: need to set `default-directory' to directory of filename,
-          ;; otherwise, it will be the dir from which find-file is called.
-
           ;; for later:
           ;; if hdf5-buffer-name corresponds to an existing buffer
           ;;    if (string= filename hdf5--buffer-file-name)
@@ -276,6 +273,7 @@ given to `find-file' a-priori, ie, this only works from `dired'."
           ;;       (hdf5-mode)
           ;; else run next 3 lines
           (switch-to-buffer (get-buffer-create hdf5-buffer-name));; need to uniquify this name (later)
+          (setq default-directory (file-name-directory filename))
           (setq hdf5--buffer-file-name filename) ;;hdf5-mode operates on hdf5--buffer-file-name
           (hdf5-mode)
           t))))) ;; bypass find-file
