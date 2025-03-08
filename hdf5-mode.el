@@ -77,6 +77,16 @@ viewed.")
 (defvar-local hdf5-mode-root nil
   "Path to begin printing the current HDF5 file fields.")
 
+(defvar-local hdf5--backward-point-list nil
+  "List of buffer point positions in the root heirarchy.
+
+This list saves buffer positions when navigating forwards.")
+
+(defvar-local hdf5--forward-point-list nil
+  "List of buffer point positions in the root heirarchy.
+
+Saves buffer positions when navigating backwards.")
+
 (defun hdf5-fix-path (path)
   "Remove extraneous '/'s from PATH."
   (let ((fsplit (file-name-split path))
@@ -128,13 +138,17 @@ viewed.")
 (defun hdf5-back ()
   "Go back one group level and display to screen."
   (interactive)
-  (setq-local hdf5-mode-root
-        (hdf5-fix-path (file-name-directory hdf5-mode-root)))
-  (hdf5-display-fields))
+  (push (list hdf5-mode-root (point)) hdf5--forward-point-list)
+  (setq hdf5-mode-root (hdf5-fix-path (file-name-directory hdf5-mode-root)))
+  (hdf5-display-fields -1))
 
-(defun hdf5-display-fields ()
-  "Display current root group fields to buffer."
-  (interactive)
+(defun hdf5-display-fields (direction)
+  "Display current root group fields to buffer.
+
+DIRECTION indicates which way we are navigating the heirarchy:
+  0: initialization
+  1: forward
+ -1: backwards"
   (let ((inhibit-read-only t))
     (erase-buffer)
     (insert (format "%s %s\n\n"
@@ -167,9 +181,23 @@ viewed.")
                    (insert (format template "" attrval "" attrkey)))
                  attrs)))
     (superword-mode)
-    (goto-char (point-min))
-    (end-of-line 4)
-    (backward-word)
+    (cond ((and (= direction -1) (> (length hdf5--backward-point-list) 0))
+           (goto-char (pop hdf5--backward-point-list)))
+          ((and (= direction  1)
+                (> (length hdf5--forward-point-list) 0))
+           ;; forward navigation is more complicated because we can come up one
+           ;; branch and then down a different branch, hence the check against
+           ;; hdf5-mode-root.
+           (let ((fwd (pop hdf5--forward-point-list)))
+             (if (string= hdf5-mode-root (car fwd))
+                 (goto-char (cadr fwd))
+               (goto-char (point-min))
+               (end-of-line 4)
+               (backward-word))))
+          (t
+           (goto-char (point-min))
+           (end-of-line 4)
+           (backward-word)))
     (set-goal-column nil)
     (set-buffer-modified-p nil)))
 
@@ -204,8 +232,13 @@ viewed.")
     (when (hdf5-is-field field)
       (if (hdf5-is-group field)
           (progn
-            (setq-local hdf5-mode-root field)
-            (hdf5-display-fields))
+            (setq hdf5-mode-root field)
+            (push (point) hdf5--backward-point-list)
+            (hdf5-display-fields 1)) ; ideally, this would be 0 in the case
+                                     ; where the user enters the path
+                                     ; interactively, but I'm not sure how to
+                                     ; get that signal into this part of the
+                                     ; code cleanly.
         (let* ((output (hdf5-parser-cmd "--read-dataset" field hdf5-mode-file))
                (parent-buf (format "%s" (current-buffer)))
                (parent-nostars (substring parent-buf 1 (1- (length parent-buf)))))
@@ -236,7 +269,7 @@ viewed.")
   (setq-local buffer-read-only t)
   (setq-local hdf5-mode-file hdf5--buffer-file-name)
   (setq-local hdf5-mode-root "/")
-  (hdf5-display-fields))
+  (hdf5-display-fields 0))
 
 ;;;###autoload
 (defun hdf5-mode--maybe-startup (&optional filename wildcards)
