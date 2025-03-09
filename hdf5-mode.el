@@ -195,6 +195,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
            (let ((fwd (pop hdf5--forward-point-list)))
              (if (string= hdf5-mode-root (car fwd))
                  (goto-char (cdr fwd))
+               (setq hdf5--forward-point-list nil) ; clear fwd history on branch change
                (goto-char (point-min))
                (end-of-line 4)
                (backward-word))))
@@ -234,10 +235,9 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (interactive "sEnter path: ")
   (let ((field (hdf5-fix-path field)))
     (when (and (hdf5-is-field field)
-               (not (string= field hdf5-mode-root))) ; this happens when the
-                                                     ; cursor is on a point that
-                                                     ; is not associated with
-                                                     ; anything
+               (not (string= field hdf5-mode-root))) ; field==hdf5-mode-root
+                                                     ; when point is not
+                                                     ; actually on any field
       (if (hdf5-is-group field)
           (if (string= hdf5-mode-root (hdf5-fix-path (file-name-directory field)))
               (progn ; normal forward navigation
