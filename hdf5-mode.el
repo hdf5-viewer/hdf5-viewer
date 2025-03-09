@@ -77,10 +77,11 @@ viewed.")
 (defvar-local hdf5-mode-root nil
   "Path to begin printing the current HDF5 file fields.")
 
-(defvar-local hdf5--backward-point-list nil
-  "List of buffer point positions in the root heirarchy.
+(defvar-local hdf5--parent-group ""
+  "Parent group to the current view.
 
-This list saves buffer positions when navigating forwards.")
+This is used to place the cursor when navigating back up the
+tree.")
 
 (defvar-local hdf5--forward-point-list nil
   "List of buffer point positions in the root heirarchy.
@@ -142,6 +143,7 @@ Return nil if there is nothing on this line."
   "Go back one group level and display to screen."
   (interactive)
   (unless (string= hdf5-mode-root "/")
+    (setq hdf5--parent-group (file-name-base hdf5-mode-root))
     (push (cons hdf5-mode-root (point)) hdf5--forward-point-list)
     (setq hdf5-mode-root (hdf5-fix-path (file-name-directory hdf5-mode-root)))
     (hdf5-display-fields -1)))
@@ -188,8 +190,9 @@ DIRECTION indicates which way we are navigating the heirarchy:
                  attrs)))
     ;; set the point
     (superword-mode)
-    (cond ((and (= direction -1) (> (length hdf5--backward-point-list) 0))
-           (goto-char (pop hdf5--backward-point-list)))
+    (cond ((= direction -1)
+           (goto-char (point-max))
+           (search-forward (concat hdf5--parent-group "/") nil nil -1))
           ((and (= direction  1)
                 (> (length hdf5--forward-point-list) 0))
            ;; forward navigation is more complicated because we can come up one
@@ -245,11 +248,9 @@ DIRECTION indicates which way we are navigating the heirarchy:
             (if (string= hdf5-mode-root field-root)
                 (progn ; normal forward navigation
                   (setq hdf5-mode-root field)
-                  (push (point) hdf5--backward-point-list)
                   (hdf5-display-fields 1))
               ;; user-input jump navigation
               (setq hdf5-mode-root field
-                    hdf5--backward-point-list nil
                     hdf5--forward-point-list nil)
               (hdf5-display-fields 0)))
         (let* ((output (hdf5-parser-cmd "--read-dataset" field hdf5-mode-file))
