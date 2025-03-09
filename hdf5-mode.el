@@ -239,10 +239,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
   "Display specified FIELD contents in new buffer."
   (interactive "sEnter path: ")
   (let ((field (hdf5-fix-path field)))
-    (when (and (hdf5-is-field field)
-               (not (string= field hdf5-mode-root))) ; field==hdf5-mode-root
-                                                     ; when point is not
-                                                     ; actually on any field
+    (when (hdf5-is-field field)
       (if (hdf5-is-group field)
           (if (string= hdf5-mode-root (hdf5-fix-path (file-name-directory field)))
               (progn ; normal forward navigation
