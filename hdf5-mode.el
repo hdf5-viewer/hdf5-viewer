@@ -138,7 +138,7 @@ Saves buffer positions when navigating backwards.")
 (defun hdf5-back ()
   "Go back one group level and display to screen."
   (interactive)
-  (push (list hdf5-mode-root (point)) hdf5--forward-point-list)
+  (push (cons hdf5-mode-root (point)) hdf5--forward-point-list)
   (setq hdf5-mode-root (hdf5-fix-path (file-name-directory hdf5-mode-root)))
   (hdf5-display-fields -1))
 
@@ -190,7 +190,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
            ;; hdf5-mode-root.
            (let ((fwd (pop hdf5--forward-point-list)))
              (if (string= hdf5-mode-root (car fwd))
-                 (goto-char (cadr fwd))
+                 (goto-char (cdr fwd))
                (goto-char (point-min))
                (end-of-line 4)
                (backward-word))))
