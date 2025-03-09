@@ -241,16 +241,17 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (let ((field (hdf5-fix-path field)))
     (when (hdf5-is-field field)
       (if (hdf5-is-group field)
-          (if (string= hdf5-mode-root (hdf5-fix-path (file-name-directory field)))
-              (progn ; normal forward navigation
-                (setq hdf5-mode-root field)
-                (push (point) hdf5--backward-point-list)
-                (hdf5-display-fields 1))
-            ;; user-input jump navigation
-            (setq hdf5-mode-root field
-                  hdf5--backward-point-list nil
-                  hdf5--forward-point-list nil)
-            (hdf5-display-fields 0))
+          (let ((field-root (hdf5-fix-path (file-name-directory field))))
+            (if (string= hdf5-mode-root field-root)
+                (progn ; normal forward navigation
+                  (setq hdf5-mode-root field)
+                  (push (point) hdf5--backward-point-list)
+                  (hdf5-display-fields 1))
+              ;; user-input jump navigation
+              (setq hdf5-mode-root field
+                    hdf5--backward-point-list nil
+                    hdf5--forward-point-list nil)
+              (hdf5-display-fields 0)))
         (let* ((output (hdf5-parser-cmd "--read-dataset" field hdf5-mode-file))
                (parent-buf (format "%s" (current-buffer)))
                (parent-nostars (substring parent-buf 1 (1- (length parent-buf)))))
