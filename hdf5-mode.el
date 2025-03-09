@@ -138,9 +138,10 @@ Saves buffer positions when navigating backwards.")
 (defun hdf5-back ()
   "Go back one group level and display to screen."
   (interactive)
-  (push (cons hdf5-mode-root (point)) hdf5--forward-point-list)
-  (setq hdf5-mode-root (hdf5-fix-path (file-name-directory hdf5-mode-root)))
-  (hdf5-display-fields -1))
+  (unless (string= hdf5-mode-root "/")
+    (push (cons hdf5-mode-root (point)) hdf5--forward-point-list)
+    (setq hdf5-mode-root (hdf5-fix-path (file-name-directory hdf5-mode-root)))
+    (hdf5-display-fields -1)))
 
 (defun hdf5-display-fields (direction)
   "Display current root group fields to buffer.
@@ -158,6 +159,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
            (attrs  (hdf5-parser-cmd "--get-attrs"  hdf5-mode-root hdf5-mode-file))
            (num-attrs (hash-table-count attrs))
            (template "%-8s %-15s %20s  %-30s\n"))
+      ;; display group and datasets
       (insert (propertize (format template "*type*" "*dims*" "*range*" "*name*")
                           'face '('bold 'underline)))
       (maphash (lambda (key val)
@@ -173,6 +175,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
                             (insert (format template
                                             dtype shape range key)))))))
                output)
+      ;; display attributes
       (when (> num-attrs 0)
         (insert "\n\n")
         (insert (propertize (format template "" "*value*" "" "*attribute*")
@@ -180,6 +183,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
         (maphash (lambda (attrkey attrval)
                    (insert (format template "" attrval "" attrkey)))
                  attrs)))
+    ;; set the point
     (superword-mode)
     (cond ((and (= direction -1) (> (length hdf5--backward-point-list) 0))
            (goto-char (pop hdf5--backward-point-list)))
@@ -229,7 +233,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
   "Display specified FIELD contents in new buffer."
   (interactive "sEnter path: ")
   (let ((field (hdf5-fix-path field)))
-    (when (hdf5-is-field field)
+    (when (and (hdf5-is-field field)
+               (not (string= field hdf5-mode-root))) ; this happens when the
+                                                     ; cursor is on a point that
+                                                     ; is not associated with
+                                                     ; anything
       (if (hdf5-is-group field)
           (progn
             (setq hdf5-mode-root field)
