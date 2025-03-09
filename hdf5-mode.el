@@ -200,12 +200,12 @@ DIRECTION indicates which way we are navigating the heirarchy:
                  (goto-char (cdr fwd))
                (setq hdf5--forward-point-list nil) ; clear fwd history on branch change
                (goto-char (point-min))
-               (end-of-line 4)
-               (backward-word))))
+               (forward-line 3))))
           (t
            (goto-char (point-min))
-           (end-of-line 4)
-           (backward-word)))
+           (forward-line 3)))
+    (end-of-line)
+    (backward-word)
     (set-goal-column nil)
     (set-buffer-modified-p nil)))
 
