@@ -239,14 +239,16 @@ DIRECTION indicates which way we are navigating the heirarchy:
                                                      ; is not associated with
                                                      ; anything
       (if (hdf5-is-group field)
-          (progn
-            (setq hdf5-mode-root field)
-            (push (point) hdf5--backward-point-list)
-            (hdf5-display-fields 1)) ; ideally, this would be 0 in the case
-                                     ; where the user enters the path
-                                     ; interactively, but I'm not sure how to
-                                     ; get that signal into this part of the
-                                     ; code cleanly.
+          (if (string= hdf5-mode-root (hdf5-fix-path (file-name-directory field)))
+              (progn ; normal forward navigation
+                (setq hdf5-mode-root field)
+                (push (point) hdf5--backward-point-list)
+                (hdf5-display-fields 1))
+            ;; user-input jump navigation
+            (setq hdf5-mode-root field
+                  hdf5--backward-point-list nil
+                  hdf5--forward-point-list nil)
+            (hdf5-display-fields 0))
         (let* ((output (hdf5-parser-cmd "--read-dataset" field hdf5-mode-file))
                (parent-buf (format "%s" (current-buffer)))
                (parent-nostars (substring parent-buf 1 (1- (length parent-buf)))))
