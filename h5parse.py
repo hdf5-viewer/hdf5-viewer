@@ -18,14 +18,14 @@ def meta_dict(obj) -> dict:
         if len(obj.shape) > 0:
             shape = str(obj.shape)
         try: # calculate the data range
-            datamin = np.nanmin(obj[:].reshape(-1))
-            datamax = np.nanmax(obj[:].reshape(-1))
+            datamin = np.nanmin(obj[()].reshape(-1))
+            datamax = np.nanmax(obj[()].reshape(-1))
             if datamin == datamax:
                 datarange = f'{datamin:.4g}'
             else:
                 datarange = f'{datamin:.3g}:{datamax:.3g}'
         except: # take the 1st value if it's something weird
-            datarange = str(obj[:][0])
+            datarange = str(obj[()][0])
         return {
             'type': 'dataset',
             'name': obj.name,
