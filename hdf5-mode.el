@@ -65,7 +65,7 @@
 (defun hdf5-get-field-at-cursor ()
   "Return field at current cursor position"
   (goto-char (line-beginning-position))
-  (setq field (thing-at-point 'word t))
+  (setq field (thing-at-point 'filename t))
   (hdf5-fix-path (concat hdf5-mode-root "/" field)))
 
 (defun hdf5-is-group (field)
