@@ -180,10 +180,7 @@
           (insert (propertize (format "%s:\n" field) 'face 'bold))
           (insert (format "%s\n" data))
           (special-mode)
-          (display-buffer (current-buffer)
-                          '((display-buffer-reuse-window
-                             display-buffer-pop-up-window)
-                            (reusable-frames . visible))))))))
+          (display-buffer (current-buffer) '(display-buffer-same-window)))))))
 
 (defun hdf5-copy-field-at-cursor ()
   "Interactively put field-at-cursor into the kill ring"
