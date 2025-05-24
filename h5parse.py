@@ -41,6 +41,8 @@ class H5Instance:
         return fields
 
     def preview_field(self, field: str) -> dict:
+        """If FIELD is a Group, return its sub-groups and sub-datasets.
+        If FIELD is a Dataset, return the data."""
         obj = self.instance[field]
         meta = meta_dict(obj)
         if isinstance(obj, h5py.Group):
@@ -55,7 +57,7 @@ class H5Instance:
         """Return metadata and data of FIELD, only for Datasets."""
         obj = self.instance[field]
         if not isinstance(obj, h5py.Dataset):
-            raise Exception(f"Argument to '--read-dataset' must be a Dataset. '{field}' is not a Dataset.")
+            raise Exception("Argument to --read-dataset must be a Dataset.")
         meta = meta_dict(obj)
         meta['data'] = str(obj[()])
         return meta
@@ -75,7 +77,10 @@ class H5Instance:
         return {"return": true_or_false}
 
     def get_attrs(self, root: str) -> dict:
+        """Return attributes of Group or Dataset"""
         obj = self.instance[root]
+        if not self.is_field(root)["return"]:
+            raise Exception("Argument to --get-attrs must be a Group or Dataset.")
         return {x[0]:str(x[1]) for x in obj.attrs.items()}
 
 if __name__ == "__main__":
