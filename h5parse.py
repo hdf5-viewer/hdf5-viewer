@@ -6,25 +6,25 @@ import json
 import sys
 import argparse
 
-def meta_dict(name: str, obj) -> dict:
+def meta_dict(obj) -> dict:
     if isinstance(obj, h5py.Group):
         return {
             'type': 'group',
-            'name': name,
+            'name': obj.name,
             'children': []
         }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
-        if len(obj.shape) > 0:
-            shape = [int(x) for x in obj.shape]
+        # if len(obj.shape) > 0:
+        #     shape = [int(x) for x in obj.shape]
         return {
             'type': 'dataset',
-            'name': name,
-            'shape': shape,
+            'name': obj.name,
+            'shape': str(obj.shape),
             'dtype': str(obj.dtype)
         }
     else:
-        raise Exception(f"'{name}' is not a dataset or group")
+        raise Exception(f"'{obj.name}' is not a dataset or group")
 
 class H5Instance:
     def __init__(self, filename: str):
@@ -36,30 +36,25 @@ class H5Instance:
             raise Exception(f"'{root}' is not a group")
         fields = {}
         for cname, cobj in obj.items():
-            fields[cname] = meta_dict(cname, cobj)
+            fields[cname] = meta_dict(cobj)
         return fields
 
     def preview_field(self, field: str) -> dict:
         obj = self.instance[field]
+        meta = meta_dict(obj)
         if isinstance(obj, h5py.Group):
             # Return fields in group
-            return {
-                "name": field,
-                "data": str(list(obj.keys()))
-            }
+            meta['data'] = str(list(obj.keys()))
         else:
             # Return data in field
-            return {
-                "name": field,
-                "data": str(self.instance[field][()])
-            }
+            meta['data'] =  str(obj[()])
+        return meta
 
     def read_field(self, field: str) -> dict:
-        data = self.instance[field][()]
-        return {
-            "name": field,
-            "data": str(data)
-        }
+        obj = self.instance[field]
+        meta = meta_dict(obj)
+        meta['data'] = str(obj[()])
+        return meta
 
     def is_group(self, field: str) -> dict:
         true_or_false = False
