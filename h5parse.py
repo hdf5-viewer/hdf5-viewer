@@ -50,8 +50,11 @@ class H5Instance:
             meta['data'] =  str(obj[()])
         return meta
 
-    def read_field(self, field: str) -> dict:
+    def read_dataset(self, field: str) -> dict:
+        """Return metadata and data of FIELD, only for Datasets."""
         obj = self.instance[field]
+        if not isinstance(obj, h5py.Dataset):
+            raise Exception(f"Argument to '--read-dataset' must be a Dataset. '{field}' is not a Dataset.")
         meta = meta_dict(obj)
         meta['data'] = str(obj[()])
         return meta
@@ -80,7 +83,7 @@ if __name__ == "__main__":
     parser.add_argument('--get-fields'   , type=str, help='Print fields within group')
     parser.add_argument('--get-attrs'    , type=str, help='Print attributes of parent to root')
     parser.add_argument('--preview-field', type=str, help='Print preview of requested field')
-    parser.add_argument('--read-field'   , type=str, help='Print field data')
+    parser.add_argument('--read-dataset' , type=str, help='Print dataset data')
     parser.add_argument('--is-group'     , type=str, help='Print true if field is group')
     parser.add_argument('--is-field'     , type=str, help='Print true if field exists in file')
     args = parser.parse_args()
@@ -93,8 +96,8 @@ if __name__ == "__main__":
         print(json.dumps(inst.get_attrs(args.get_attrs)))
     elif args.preview_field:
         print(json.dumps(inst.preview_field(args.preview_field)))
-    elif args.read_field:
-        print(json.dumps(inst.read_field(args.read_field)))
+    elif args.read_dataset:
+        print(json.dumps(inst.read_dataset(args.read_dataset)))
     elif args.is_group:
         print(json.dumps(inst.is_group(args.is_group)))
     elif args.is_field:
