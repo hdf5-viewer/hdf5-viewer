@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Copyright (C) 2024-2025 Paul Minner, Peter Mao, Caltech
+
 import h5py
 import numpy as np
 import json

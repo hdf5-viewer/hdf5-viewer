@@ -1,6 +1,6 @@
 ;;; hdf5-mode.el --- Major mode for viewing HDF5 files -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2024-2025 Paul Minner, (Peter Mao -> Free Software Foundation, Inc.)
+;; Copyright (C) 2024-2025 Paul Minner, Peter Mao, Caltech
 
 ;; Author: Paul Minner <minner.paul@gmail.com>, Peter Mao <peter.mao@gmail.com>
 ;; Keywords: HDF5, data
