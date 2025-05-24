@@ -57,14 +57,16 @@ class H5Instance:
         return meta
 
     def is_group(self, field: str) -> dict:
+        """True for Groups.  False otherwise."""
         true_or_false = False
-        if self.is_field(field):
+        if self.is_field(field)["return"]:
             obj = self.instance[field]
             if isinstance(obj, h5py.Group):
                 return {"return": True}
         return {"return": true_or_false}
 
     def is_field(self, field: str) -> dict:
+        """True for Groups and Datasets. False otherwise, in particular for Attributes."""
         true_or_false = field in self.instance
         return {"return": true_or_false}
 
