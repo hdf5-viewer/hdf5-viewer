@@ -31,9 +31,10 @@ class H5Instance:
         self.instance =  h5py.File(filename)
 
     def get_fields(self, root: str) -> dict:
-        obj = self.instance[root]
-        if not isinstance(obj, h5py.Group):
+        """Get Groups and Datasets of the Group ROOT"""
+        if not self.is_group(root)["return"]:
             raise Exception(f"'{root}' is not a group")
+        obj = self.instance[root]
         fields = {}
         for cname, cobj in obj.items():
             fields[cname] = meta_dict(cobj)
