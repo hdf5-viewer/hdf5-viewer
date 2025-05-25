@@ -192,7 +192,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
                    (let ((attrval-substrings (split-string attrval "\n")))
                      ;; if `attrval' breaks over multiple lines, print all but
                      ;; the last without the `attrkey'
-                     (dotimes (junk (1- (length attrval-substrings)))
+                     (dotimes (_junk (1- (length attrval-substrings)))
                        (insert (pop attrval-substrings) "\n"))
                      ;; print `attrkey' with the last line.
                      (insert (format attr-template (pop attrval-substrings) attrkey))))
@@ -292,7 +292,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
 (define-derived-mode hdf5-mode special-mode "HDF5"
   "Major mode for viewing HDF5 files."
   (setq-local buffer-read-only t)
-  (setq-local hdf5-mode-file hdf5--buffer-file-name)
+  (setq-local hdf5-mode-file hdf5--buffer-filename)
   (setq-local hdf5-mode-root "/")
   (hdf5-display-fields 0))
 
@@ -300,7 +300,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
 (defun hdf5-mode--maybe-startup (&optional filename wildcards)
   "Advice to avoid loading HDF5 files into the buffer.
 
-HDF5 files can be very large and hdf5-mode does not need the file
+HDF5 files can be very large and `hdf5-mode' does not need the file
 contents to be loaded before operating on the file.  This advice
 looks for the HDF5 signature in the first 8 bytes of a file.  If
 it is not HDF5, then proceed with `find-file'.  If it is HDF5, then open a
@@ -323,16 +323,16 @@ given to `find-file' a-priori, ie, this only works from `dired'."
                                         "*")))
           ;; for later:
           ;; if hdf5-buffer-name corresponds to an existing buffer
-          ;;    if (string= filename hdf5--buffer-file-name)
+          ;;    if (string= filename hdf5--buffer-filename)
           ;;       switch to buffer
           ;;    else
           ;;       create/switch to buffer with unique name
-          ;;       setq hdf5--buffer-file-name filename
+          ;;       setq hdf5--buffer-filename filename
           ;;       (hdf5-mode)
           ;; else run next 3 lines
           (switch-to-buffer (get-buffer-create hdf5-buffer-name));; need to uniquify this name (later)
           (setq default-directory (file-name-directory filename))
-          (setq hdf5--buffer-file-name filename) ;;hdf5-mode operates on hdf5--buffer-file-name
+          (setq hdf5--buffer-filename filename) ;;hdf5-mode operates on hdf5--buffer-filename
           (hdf5-mode)
           t))))) ;; bypass find-file
 
