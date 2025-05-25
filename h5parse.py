@@ -95,9 +95,10 @@ class H5Instance:
 
     def get_attrs(self, root: str) -> dict:
         """Return attributes of Group or Dataset"""
-        obj = self.instance[root]
         if not self.is_field(root)["return"]:
             raise Exception("Argument to --get-attrs must be a Group or Dataset.")
+        obj = self.instance[root]
+        np.set_printoptions(linewidth=45)
         return {x[0]:str(x[1]) for x in obj.attrs.items()}
 
 if __name__ == "__main__":

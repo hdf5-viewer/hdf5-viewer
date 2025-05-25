@@ -149,7 +149,7 @@ Return nil if there is nothing on this line."
     (hdf5-display-fields -1)))
 
 (defun hdf5-display-fields (direction)
-  "Display current root group fields to buffer.
+  "Display current root group fields and attributes to buffer.
 
 DIRECTION indicates which way we are navigating the heirarchy:
   0: initialization
@@ -163,30 +163,37 @@ DIRECTION indicates which way we are navigating the heirarchy:
     (let* ((output (hdf5-parser-cmd "--get-fields" hdf5-mode-root hdf5-mode-file))
            (attrs  (hdf5-parser-cmd "--get-attrs"  hdf5-mode-root hdf5-mode-file))
            (num-attrs (hash-table-count attrs))
-           (template "%-8s %-15s %20s  %-30s\n"))
-      ;; display group and datasets
-      (insert (propertize (format template "*type*" "*dims*" "*range*" "*name*")
+           (field-template "%-8s %-15s %20s  %-30s\n")
+           (attr-template  "%-45s  %-30s\n"))
+      ;; display GROUPS and DATASETS
+      (insert (propertize (format field-template "*type*" "*dims*" "*range*" "*name*")
                           'face '('bold 'underline)))
       (maphash (lambda (key val)
                  (let ((type  (gethash "type"  val)))
                    (cond ((string= type "group")
-                          (insert (format template
+                          (insert (format field-template
                                            "group" "N/A" ""
                                           (format "%s/" key))))
                          ((string= type "dataset")
                           (let ((dtype (gethash "dtype" val))
                                 (shape (gethash "shape" val))
                                 (range (gethash "range" val "")))
-                            (insert (format template
+                            (insert (format field-template
                                             dtype shape range key)))))))
                output)
-      ;; display attributes
+      ;; display ATTRIBUTES
       (when (> num-attrs 0)
         (insert "\n\n")
-        (insert (propertize (format template "" "*value*" "" "*attribute*")
+        (insert (propertize (format attr-template "*value*" "*attribute*")
                             'face '('bold 'underline)))
         (maphash (lambda (attrkey attrval)
-                   (insert (format template "" attrval "" attrkey)))
+                   (let ((attrval-substrings (split-string attrval "\n")))
+                     ;; if `attrval' breaks over multiple lines, print all but
+                     ;; the last without the `attrkey'
+                     (dotimes (junk (1- (length attrval-substrings)))
+                       (insert (pop attrval-substrings) "\n"))
+                     ;; print `attrkey' with the last line.
+                     (insert (format attr-template (pop attrval-substrings) attrkey))))
                  attrs)))
     ;; set the point
     (superword-mode)
