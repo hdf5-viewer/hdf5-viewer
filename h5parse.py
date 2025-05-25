@@ -75,6 +75,7 @@ class H5Instance:
         if not isinstance(obj, h5py.Dataset):
             raise Exception("Argument to --read-dataset must be a Dataset.")
         meta = meta_dict(obj)
+        np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize)
         meta['data'] = str(obj[()])
         return meta
 
