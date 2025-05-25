@@ -267,11 +267,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
             (let ((inhibit-read-only t))
               (erase-buffer)
               (setq-local truncate-lines t)
-              (insert (format "%s %s %s:\n%s\n"
-                              (propertize field 'face 'bold)
-                              (gethash "shape" output)
-                              (gethash "dtype" output)
-                              (gethash "data" output)))
+              (insert (propertize (format "%s %s %s:"
+                                          (propertize field 'face 'bold)
+                                          (gethash "shape" output)
+                                          (gethash "dtype" output)) 'face 'underline))
+              (insert "\n\n" (gethash "data" output))
               (goto-char (point-min))
               (special-mode)
               (display-buffer (current-buffer) '((display-buffer-same-window))))))))))
