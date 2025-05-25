@@ -13,22 +13,24 @@ def meta_dict(obj) -> dict:
         return {
             'type': 'group',
             'name': obj.name,
-            'children': []
+            # 'children': []
         }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
-        if (obj.shape is not None):
-            if (len(obj.shape) > 0):
-                shape = str(obj.shape)
+        data  = obj[()]
+        if (data.shape is not None):
+            datavec = data.reshape(-1) # data as a vector
+            if (len(data.shape) > 0):
+                shape = str(data.shape)
             try: # calculate the data range
-                datamin = np.nanmin(obj[()].reshape(-1))
-                datamax = np.nanmax(obj[()].reshape(-1))
+                datamin = np.nanmin(datavec)
+                datamax = np.nanmax(datavec)
                 if datamin == datamax:
                     datarange = f'{datamin:.4g}'
                 else:
                     datarange = f'{datamin:.3g}:{datamax:.3g}'
             except: # take the 1st value if it's something weird
-                datarange = str(obj[()][0])
+                datarange = str(datavec[0])
         else:
             datarange = ""
             dtype     = ""
@@ -36,7 +38,7 @@ def meta_dict(obj) -> dict:
                 'name': obj.name,
                 'shape': shape,
                 'range': datarange,
-                'dtype': str(obj.dtype)}
+                'dtype': str(data.dtype)}
     else:
         raise Exception(f"'{obj.name}' is not a dataset or group")
 
