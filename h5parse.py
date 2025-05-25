@@ -13,22 +13,24 @@ def meta_dict(obj) -> dict:
         return {
             'type': 'group',
             'name': obj.name,
-            'children': []
+            # 'children': []
         }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
-        if (obj.shape is not None):
-            if (len(obj.shape) > 0):
-                shape = str(obj.shape)
+        data  = obj[()]
+        if (data.shape is not None):
+            datavec = data.reshape(-1) # data as a vector
+            if (len(data.shape) > 0):
+                shape = str(data.shape)
             try: # calculate the data range
-                datamin = np.nanmin(obj[()].reshape(-1))
-                datamax = np.nanmax(obj[()].reshape(-1))
+                datamin = np.nanmin(datavec)
+                datamax = np.nanmax(datavec)
                 if datamin == datamax:
                     datarange = f'{datamin:.4g}'
                 else:
                     datarange = f'{datamin:.3g}:{datamax:.3g}'
             except: # take the 1st value if it's something weird
-                datarange = str(obj[()][0])
+                datarange = str(datavec[0])
         else:
             datarange = ""
             dtype     = ""
@@ -36,7 +38,7 @@ def meta_dict(obj) -> dict:
                 'name': obj.name,
                 'shape': shape,
                 'range': datarange,
-                'dtype': str(obj.dtype)}
+                'dtype': str(data.dtype)}
     else:
         raise Exception(f"'{obj.name}' is not a dataset or group")
 
@@ -73,6 +75,7 @@ class H5Instance:
         if not isinstance(obj, h5py.Dataset):
             raise Exception("Argument to --read-dataset must be a Dataset.")
         meta = meta_dict(obj)
+        np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize)
         meta['data'] = str(obj[()])
         return meta
 
@@ -92,9 +95,10 @@ class H5Instance:
 
     def get_attrs(self, root: str) -> dict:
         """Return attributes of Group or Dataset"""
-        obj = self.instance[root]
         if not self.is_field(root)["return"]:
             raise Exception("Argument to --get-attrs must be a Group or Dataset.")
+        obj = self.instance[root]
+        np.set_printoptions(linewidth=45)
         return {x[0]:str(x[1]) for x in obj.attrs.items()}
 
 if __name__ == "__main__":
