@@ -179,7 +179,9 @@ DIRECTION indicates which way we are navigating the heirarchy:
                                 (shape (gethash "shape" val))
                                 (range (gethash "range" val "")))
                             (insert (format field-template
-                                            dtype shape range key)))))))
+                                            dtype shape range key))))
+                         ((string= type "other")
+                          (insert (format field-template "other" "" "" key))))))
                output)
       ;; display ATTRIBUTES
       (when (> num-attrs 0)

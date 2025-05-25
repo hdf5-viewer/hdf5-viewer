@@ -53,7 +53,11 @@ class H5Instance:
         obj = self.instance[root]
         fields = {}
         for cname, cobj in obj.items():
-            fields[cname] = meta_dict(cobj)
+            if cobj is not None:
+                fields[cname] = meta_dict(cobj)
+            else:
+                fields[cname] = {'type': 'other',
+                                 'name': cname}
         return fields
 
     def preview_field(self, field: str) -> dict:
