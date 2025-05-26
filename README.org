@@ -2,7 +2,7 @@
 
 This package facilitates HDF5 file navigation with a =dired=-like interface.
 
-Advice (=hdf5-mode--maybe-startup=) is provided to =find-file= so that HDF5
+Advice (=hdf5-mode-maybe-startup=) is provided to =find-file= so that HDF5
 files, which can be very large, are not read into any buffer; rather, the
 python functions provided access only the parts of the file that are of interest
 to the user.
