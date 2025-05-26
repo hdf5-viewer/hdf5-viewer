@@ -6,7 +6,7 @@
 ;; Keywords: HDF5, data
 ;; Version: 1.1
 ;; Description: A major-mode for viewing HDF5 files.
-;; Homepage: https://github.com/paublo96/emacs-hdf5
+;; Homepage: https://github.com/hdf5-viewer/hdf5-viewer
 ;; Package-Requires: ((emacs "29.1"))
 
 ;; GNU Emacs is free software: you can redistribute it and/or modify
