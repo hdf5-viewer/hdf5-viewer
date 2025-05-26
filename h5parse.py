@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
+"""Parser for hdf5-viewer.  Returns JSON objects for parsing in elisp."""
 
 # Copyright (C) 2024-2025 Paul Minner, Peter Mao, Caltech
 
-import h5py
-import numpy as np
 import json
 import sys
 import argparse
+import numpy as np
+import h5py
 
 def meta_dict(obj) -> dict:
+    """Common function to collect metadata from HDF5 object."""
     if isinstance(obj, h5py.Group):
-        return {
-            'type': 'group',
-            'name': obj.name,
-            # 'children': []
-        }
+        meta = { 'type': 'group',
+                 'name': obj.name,
+                 # 'children': []
+                }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
         data  = obj[()]
-        if (data.shape is not None):
+        if data.shape is not None:
             datavec = data.reshape(-1) # data as a vector
-            if (len(data.shape) > 0):
+            if len(data.shape) > 0:
                 shape = str(data.shape)
             try: # calculate the data range
                 datamin = np.nanmin(datavec)
@@ -33,16 +34,18 @@ def meta_dict(obj) -> dict:
                 datarange = str(datavec[0])
         else:
             datarange = ""
-            dtype     = ""
-        return {'type': 'dataset',
-                'name': obj.name,
-                'shape': shape,
-                'range': datarange,
-                'dtype': str(data.dtype)}
+        meta =  {'type': 'dataset',
+                 'name': obj.name,
+                 'shape': shape,
+                 'range': datarange,
+                 'dtype': str(data.dtype)}
     else:
         raise Exception(f"'{obj.name}' is not a dataset or group")
+    return meta
+
 
 class H5Instance:
+    """Main class for parsing the HDF5 file."""
     def __init__(self, filename: str):
         self.instance =  h5py.File(filename)
 
@@ -130,4 +133,4 @@ if __name__ == "__main__":
         print(json.dumps(inst.is_group(args.is_group)))
     elif args.is_field:
         print(json.dumps(inst.is_field(args.is_field)))
-    exit(0)
+    sys.exit(0)
