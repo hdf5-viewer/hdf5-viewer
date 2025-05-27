@@ -190,12 +190,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
                             'face '('bold 'underline)))
         (maphash (lambda (attrkey attrval)
                    (let ((attrval-substrings (split-string attrval "\n")))
-                     ;; if `attrval' breaks over multiple lines, print all but
-                     ;; the last without the `attrkey'
-                     (dotimes (_junk (1- (length attrval-substrings)))
-                       (insert (pop attrval-substrings) "\n"))
-                     ;; print `attrkey' with the last line.
-                     (insert (format attr-template (pop attrval-substrings) attrkey))))
+                     ;; print `attrkey' on this line
+                     (insert (format attr-template (pop attrval-substrings) attrkey))
+                     ;; if `attrval' breaks over multiple lines, print remainder w/o key
+                     (dotimes (_junk (length attrval-substrings))
+                       (insert (pop attrval-substrings) "\n"))))
                  attrs)))
     ;; set the point
     (superword-mode)
