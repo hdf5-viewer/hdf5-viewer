@@ -8,6 +8,7 @@ import sys
 import argparse
 import numpy as np
 import h5py
+import warnings
 
 def meta_dict(obj) -> dict:
     """Common function to collect metadata from HDF5 object."""
@@ -31,9 +32,13 @@ def meta_dict(obj) -> dict:
                 shape = str(data.shape)
             if len(datavec) > 0: # Protect against empty datasets
                 try: # calculate the data range
-                    datamin = np.nanmin(datavec)
-                    datamax = np.nanmax(datavec)
-                    if datamin == datamax:
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        datamin = np.nanmin(datavec)
+                        datamax = np.nanmax(datavec)
+                    if np.isnan(datdamin):
+                        datarange = 'nan'
+                    elif datamin == datamax:
                         datarange = f'{datamin:.4g}'
                     else:
                         datarange = f'{datamin:.3g}:{datamax:.3g}'
