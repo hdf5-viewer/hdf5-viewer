@@ -18,27 +18,32 @@ def meta_dict(obj) -> dict:
                 }
     elif isinstance(obj, h5py.Dataset):
         shape = "scalar"
+        datarange = ""
+        dtype = "object" # h5py call non-numeric types object
         data  = obj[()]
-        if data.shape is not None:
+        if hasattr(data, "dtype"):
+            dtype = str(data.dtype)
+        if (hasattr(data, "shape") and
+            data.shape is not None and
+            dtype != "object"):
             datavec = data.reshape(-1) # data as a vector
             if len(data.shape) > 0:
                 shape = str(data.shape)
-            try: # calculate the data range
-                datamin = np.nanmin(datavec)
-                datamax = np.nanmax(datavec)
-                if datamin == datamax:
-                    datarange = f'{datamin:.4g}'
-                else:
-                    datarange = f'{datamin:.3g}:{datamax:.3g}'
-            except: # take the 1st value if it's something weird
-                datarange = str(datavec[0])
-        else:
-            datarange = ""
+            if len(datavec) > 0: # Protect against empty datasets
+                try: # calculate the data range
+                    datamin = np.nanmin(datavec)
+                    datamax = np.nanmax(datavec)
+                    if datamin == datamax:
+                        datarange = f'{datamin:.4g}'
+                    else:
+                        datarange = f'{datamin:.3g}:{datamax:.3g}'
+                except: # take the 1st value if it's something weird
+                    datarange = str(datavec[0])
         meta =  {'type': 'dataset',
                  'name': obj.name,
                  'shape': shape,
                  'range': datarange,
-                 'dtype': str(data.dtype)}
+                 'dtype': dtype}
     else:
         raise Exception(f"'{obj.name}' is not a dataset or group")
     return meta
