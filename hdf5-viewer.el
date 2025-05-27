@@ -143,7 +143,7 @@ Return nil if there is nothing on this line."
   "Go back one group level and display to screen."
   (interactive)
   (unless (string= hdf5-viewer-root "/")
-    (setq hdf5-viewer--parent-group (file-name-base hdf5-viewer-root))
+    (setq hdf5-viewer--parent-group (file-name-nondirectory hdf5-viewer-root))
     (push (cons hdf5-viewer-root (point)) hdf5-viewer--forward-point-list)
     (setq hdf5-viewer-root (hdf5-viewer--fix-path (file-name-directory hdf5-viewer-root)))
     (hdf5-viewer--display-fields -1)))
