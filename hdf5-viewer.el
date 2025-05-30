@@ -29,7 +29,7 @@
 ;; in the same location as hdf5-viewer.el.
 
 ;;; Code:
-;;(require 'json)
+(require 'json)
 
 (defgroup hdf5-viewer nil
   "Major mode for viewing HDF5 files."
