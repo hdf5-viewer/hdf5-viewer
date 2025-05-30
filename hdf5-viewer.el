@@ -296,7 +296,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (hdf5-viewer--display-fields 0))
 
 ;;;###autoload
-(defun hdf5-viewer-maybe-startup (&optional filename wildcards)
+(defun hdf5-viewer-maybe-startup (&optional filename _wildcards)
   "Advice to avoid loading HDF5 files into the buffer.
 
 HDF5 files can be very large and `hdf5-viewer' does not need the file
@@ -306,11 +306,11 @@ it is not HDF5, then proceed with `find-file'.  If it is HDF5, then open a
 buffer named \"*hdf5: FILENAME*\" and start hdf5-viewer.
 `find-file' is then bypassed.
 
-WILDCARDS is not used by this advice and is passed on to
-`find-file'.  This advice is also bypassed if FILENAME is not
-given to `find-file' a-priori, ie, this only works from `dired'."
+The WILDCARDS flag is not used by this advice and is passed on to
+`find-file'.  HDF5 files referenced by wildcards will be opened
+as normal files, without `hdf5-viewer'."
 
-  (if (or wildcards (not (file-regular-p filename))) nil
+  (if (not (file-regular-p filename)) nil
     (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
           (filehead (with-temp-buffer
                      (set-buffer-multibyte nil)
