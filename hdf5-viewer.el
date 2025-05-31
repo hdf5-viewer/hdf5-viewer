@@ -40,6 +40,7 @@
   :type 'string
   :group 'hdf5-viewer)
 
+(makunbound 'hdf5-viewer-parse-command)
 (defcustom hdf5-viewer-parse-command
   (format "%s %sh5parse.py"
           hdf5-viewer-python-command
