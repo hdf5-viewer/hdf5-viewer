@@ -62,6 +62,7 @@
     (define-key map (kbd "n")   'next-line)
     (define-key map (kbd "p")   'previous-line)
     (define-key map (kbd "w")   'hdf5-viewer-copy-field-at-cursor)
+    (define-key map (kbd "a")   'hdf5-viewer-read-attributes-at-cursor)
     map)
   "Keymap for HDF5-viewer mode.")
 
@@ -285,6 +286,25 @@ DIRECTION indicates which way we are navigating the heirarchy:
               (goto-char (point-min))
               (special-mode)
               (display-buffer (current-buffer) '((display-buffer-same-window))))))))))
+
+(defun hdf5-viewer-read-attributes-at-cursor ()
+  "Display dataset attributes at cursor in buffer."
+  (interactive)
+  (let ((field (hdf5-viewer--get-field-at-cursor)))
+    (when field
+      (hdf5-viewer-read-attributes field))))
+
+(defun hdf5-viewer-read-attributes (field)
+  "Read and display the attributes for a FIELD in the buffer.
+
+This function treats Groups and Datasets on equal footing.  If
+the field is a group, then it is the same as
+`hdf5-viewer-read-field'."
+  (interactive "sEnter path: ")
+  (let ((field (hdf5-viewer--fix-path field)))
+    (when (hdf5-viewer--is-field field)
+      (setq hdf5-viewer-root field)
+      (hdf5-viewer--display-root 1))))
 
 (defun hdf5-viewer-back ()
   "Go back one group level and display to screen."
