@@ -210,7 +210,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
     (superword-mode)
     (cond ((= direction -1)
            (goto-char (point-max))
-           (search-forward (concat " " hdf5-viewer--parent-group "/") nil nil -1))
+           (search-forward (concat " " hdf5-viewer--parent-group) nil nil -1))
           ((and (= direction  1)
                 (> (length hdf5-viewer--forward-point-list) 0))
            ;; forward navigation is more complicated because we can come up one
