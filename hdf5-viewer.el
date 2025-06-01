@@ -264,7 +264,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
               (hdf5-viewer--display-fields 0)))
         (let* ((output (hdf5-viewer--run-parser "--read-dataset" field hdf5-viewer-file))
                (parent-buf (string-split (buffer-name (current-buffer)) "*" t))
-               (dataset-buf (concat "*" (pop parent-buf) field "*" (apply 'concat parent-buf))))
+               (dataset-buf (format "*%s%s*%s" (pop parent-buf) field (apply 'concat parent-buf))))
           (with-current-buffer (get-buffer-create dataset-buf)
             (let ((inhibit-read-only t))
               (erase-buffer)
