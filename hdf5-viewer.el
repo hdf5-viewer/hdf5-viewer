@@ -63,6 +63,7 @@
     (define-key map (kbd "p")   'previous-line)
     (define-key map (kbd "w")   'hdf5-viewer-copy-field-at-cursor)
     (define-key map (kbd "a")   'hdf5-viewer-read-attributes-at-cursor)
+    (define-key map (kbd "P")   'hdf5-viewer-plot-dataset-at-cursor)
     map)
   "Keymap for HDF5-viewer mode.")
 
@@ -332,6 +333,14 @@ the field is a group, then it is the same as
           (kill-new field-name)
           (message (format "Copied HD5 %s name: %s" field-type field-name)))
       (message "No field or attribute found on this line."))))
+
+(defun hdf5-viewer-plot-dataset-at-cursor ()
+  "Plot 1D or 2D dataset with matplotlib."
+  (interactive)
+  (let ((field (hdf5-viewer--get-field-at-cursor)))
+    (if (hdf5-viewer--is-dataset field)
+        (hdf5-viewer--run-parser "--plot-dataset" field hdf5-viewer-file)
+      (message "No dataset found on this line."))))
 
 ;;;###autoload
 (define-derived-mode hdf5-viewer-mode special-mode "HDF5"
