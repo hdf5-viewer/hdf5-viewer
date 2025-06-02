@@ -17,9 +17,10 @@ to the user.
 
 ** keybindings
 
-| read-field-at-cursor         | RET, SPC      |
-| read-field                   | /             |
-| preview-field-at-cursor      | TAB           |
-| preview-field                | '             |
-| back (go up the tree)        | b, DEL, S-SPC |
-| copy field or attribute name | w             |
+| read-field-at-cursor              | RET, SPC      |
+| read-field                        | /             |
+| read dataset attributes at cursor | a             |
+| preview-field-at-cursor           | TAB           |
+| preview-field                     | '             |
+| back (go up the tree)             | b, DEL, S-SPC |
+| copy field or attribute name      | w             |
