@@ -6,9 +6,9 @@
 import json
 import sys
 import argparse
+import warnings
 import numpy as np
 import h5py
-import warnings
 
 def meta_dict(obj) -> dict:
     """Common function to collect metadata from HDF5 object."""
@@ -50,7 +50,7 @@ def meta_dict(obj) -> dict:
                  'range': datarange,
                  'dtype': dtype}
     else:
-        raise Exception(f"'{obj.name}' is not a dataset or group")
+        raise TypeError(f"'{obj.name}' must be a Dataset or Group")
     return meta
 
 
@@ -62,7 +62,7 @@ class H5Instance:
     def get_fields(self, root: str) -> dict:
         """Get Groups and Datasets of the Group ROOT"""
         if not self.is_group(root)["return"]:
-            raise Exception(f"'{root}' is not a group")
+            raise TypeError(f"'{root}' is not a Group")
         obj = self.instance[root]
         fields = {}
         for cname, cobj in obj.items():
@@ -90,7 +90,7 @@ class H5Instance:
         """Return metadata and data of FIELD, only for Datasets."""
         obj = self.instance[field]
         if not isinstance(obj, h5py.Dataset):
-            raise Exception("Argument to --read-dataset must be a Dataset.")
+            raise TypeError("Argument to --read-dataset must be a Dataset.")
         meta = meta_dict(obj)
         np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize)
         meta['data'] = str(obj[()])
@@ -113,7 +113,7 @@ class H5Instance:
     def get_attrs(self, root: str) -> dict:
         """Return attributes of Group or Dataset"""
         if not self.is_field(root)["return"]:
-            raise Exception("Argument to --get-attrs must be a Group or Dataset.")
+            raise TypeError("Argument to --get-attrs must be a Group or Dataset.")
         obj = self.instance[root]
         np.set_printoptions(linewidth=45)
         return {x[0]:str(x[1]) for x in obj.attrs.items()}
