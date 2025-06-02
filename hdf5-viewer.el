@@ -199,8 +199,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
     ;; display GROUPS and DATASETS for roots that are groups
     (when (hdf5-viewer--is-group hdf5-viewer-root)
       (let ((fields (hdf5-viewer--run-parser "--get-fields" hdf5-viewer-root hdf5-viewer-file)))
-        (hdf5-viewer--display-fields fields)
-        (setq fields-were-displayed t)))
+        (hdf5-viewer--display-fields fields)))
     ;; display ATTRIBUTES
     (let* ((attrs  (hdf5-viewer--run-parser "--get-attrs"  hdf5-viewer-root hdf5-viewer-file))
            (num-attrs (hash-table-count attrs)))
@@ -350,9 +349,9 @@ as normal files, without `hdf5-viewer'.
 
 For files with the same nondirectory names, the buffer names are
 disambituated with `generate-new-buffer-name', which appends an
-incrementing \"<#>\" to the buffer name.  The `buffer-file-name'
-is set uniquely, via `set-visited-file-name', to the HDF5
-filename with \"-hdf5-viewer\" appended to the end."
+incrementing \"<#>\" to the buffer name.  The variable
+`buffer-file-name' is set uniquely, via `set-visited-file-name',
+to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
 
   (if (not (file-regular-p filename)) nil
     (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
