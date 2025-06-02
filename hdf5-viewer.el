@@ -122,6 +122,14 @@ Return nil if there is nothing on this line."
   (let ((output (hdf5-viewer--run-parser "--is-field" field hdf5-viewer-file)))
     (gethash "return" output)))
 
+(defun hdf5-viewer--is-dataset (field)
+  "Return t if FIELD might be a Dataset.
+
+This is admittedly imperfect logic for identifying Datasets.
+Return t if FIELD is a Field but not a Group."
+  (and (hdf5-viewer--is-field field)
+       (not (hdf5-viewer--is-group field))))
+
 (defun hdf5-viewer--run-parser (&rest args)
   "Run parser command with custom ARGS and return json output."
   (with-temp-buffer
