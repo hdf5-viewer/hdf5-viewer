@@ -234,11 +234,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (when (hdf5-viewer--is-field field)
     (let ((field  (hdf5-viewer--fix-path field))
           (output (hdf5-viewer--run-parser "--preview-field" field hdf5-viewer-file)))
-      (message (format "%s %s %s:\n%s"
-                       (propertize field 'face 'bold)
-                       (gethash "shape" output "")
-                       (gethash "dtype" output "")
-                       (gethash "data" output))))))
+      (message "%s %s %s:\n%s"
+               (propertize field 'face 'bold)
+               (gethash "shape" output "")
+               (gethash "dtype" output "")
+               (gethash "data" output)))))
 
 (defun hdf5-viewer-read-field-at-cursor ()
   "Display field contents at cursor in new buffer."
@@ -285,7 +285,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
     (if field-name
         (let ((field-type (if (hdf5-viewer--is-field field-name) "field" "attribute")))
           (kill-new field-name)
-          (message (format "Copied HD5 %s name: %s" field-type field-name)))
+          (message "Copied HD5 %s name: %s" field-type field-name))
       (message "No field or attribute found on this line."))))
 
 ;;;###autoload
