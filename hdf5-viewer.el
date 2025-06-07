@@ -316,7 +316,8 @@ as normal files, without `hdf5-viewer'."
           (filehead (with-temp-buffer
                      (set-buffer-multibyte nil)
                      (insert-file-contents-literally filename nil 0 8 t)
-                     (buffer-substring-no-properties 1 9))))
+                     (buffer-substring-no-properties 1 9)))
+          (filename-escaped (shell-quote-argument filename)))
       (when (string= filehead hdf5-signature)
         (let ((hdf5-viewer-buffer-name (concat "*hdf5: "
                                         (file-name-nondirectory filename)
@@ -332,7 +333,7 @@ as normal files, without `hdf5-viewer'."
           ;; else run next 3 lines
           (switch-to-buffer (get-buffer-create hdf5-viewer-buffer-name));; need to uniquify this name (later)
           (setq default-directory (file-name-directory filename))
-          (setq hdf5-viewer--buffer-filename filename) ;;hdf5-viewer operates on hdf5-viewer--buffer-filename
+          (setq hdf5-viewer--buffer-filename filename-escaped) ;;hdf5-viewer operates on hdf5-viewer--buffer-filename
           (hdf5-viewer-mode)
           t))))) ;; bypass find-file
 
