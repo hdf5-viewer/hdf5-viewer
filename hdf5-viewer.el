@@ -251,11 +251,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (when (hdf5-viewer--is-field field)
     (let ((field  (hdf5-viewer--fix-path field))
           (output (hdf5-viewer--run-parser "--preview-field" field hdf5-viewer-file)))
-      (message (format "%s %s %s:\n%s"
-                       (propertize field 'face 'bold)
-                       (gethash "shape" output "")
-                       (gethash "dtype" output "")
-                       (gethash "data" output))))))
+      (message "%s %s %s:\n%s"
+               (propertize field 'face 'bold)
+               (gethash "shape" output "")
+               (gethash "dtype" output "")
+               (gethash "data" output)))))
 
 (defun hdf5-viewer-read-field-at-cursor ()
   "Display field contents at cursor in new buffer."
@@ -330,7 +330,7 @@ the field is a group, then it is the same as
     (if field-name
         (let ((field-type (if (hdf5-viewer--is-field field-name) "field" "attribute")))
           (kill-new field-name)
-          (message (format "Copied HD5 %s name: %s" field-type field-name)))
+          (message "Copied HD5 %s name: %s" field-type field-name))
       (message "No field or attribute found on this line."))))
 
 (defun hdf5-viewer-plot-dataset-at-cursor ()
@@ -375,7 +375,8 @@ to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
           (filehead (with-temp-buffer
                      (set-buffer-multibyte nil)
                      (insert-file-contents-literally filename nil 0 8 t)
-                     (buffer-substring-no-properties 1 9))))
+                     (buffer-substring-no-properties 1 9)))
+          (filename-escaped (shell-quote-argument filename)))
       (when (string= filehead hdf5-signature)
         (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
                (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
@@ -385,7 +386,7 @@ to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
             (let ((new-buffer-name (generate-new-buffer-name this-buffer-name)))
               (switch-to-buffer (get-buffer-create new-buffer-name))
               (setq default-directory (file-name-directory filename))
-              (setq hdf5-viewer--buffer-filename filename)
+              (setq hdf5-viewer--buffer-filename filename-escaped)
               (set-visited-file-name this-buffer-filename)
               (rename-buffer new-buffer-name)
               (hdf5-viewer-mode))))
