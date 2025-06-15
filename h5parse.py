@@ -36,7 +36,7 @@ def meta_dict(obj) -> dict:
                         warnings.simplefilter("ignore")
                         datamin = np.nanmin(datavec)
                         datamax = np.nanmax(datavec)
-                    if np.isnan(datdamin):
+                    if np.isnan(datamin):
                         datarange = 'nan'
                     elif datamin == datamax:
                         datarange = f'{datamin:.4g}'

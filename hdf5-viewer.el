@@ -234,11 +234,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (when (hdf5-viewer--is-field field)
     (let ((field  (hdf5-viewer--fix-path field))
           (output (hdf5-viewer--run-parser "--preview-field" field hdf5-viewer-file)))
-      (message (format "%s %s %s:\n%s"
-                       (propertize field 'face 'bold)
-                       (gethash "shape" output "")
-                       (gethash "dtype" output "")
-                       (gethash "data" output))))))
+      (message "%s %s %s:\n%s"
+               (propertize field 'face 'bold)
+               (gethash "shape" output "")
+               (gethash "dtype" output "")
+               (gethash "data" output)))))
 
 (defun hdf5-viewer-read-field-at-cursor ()
   "Display field contents at cursor in new buffer."
@@ -285,7 +285,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
     (if field-name
         (let ((field-type (if (hdf5-viewer--is-field field-name) "field" "attribute")))
           (kill-new field-name)
-          (message (format "Copied HD5 %s name: %s" field-type field-name)))
+          (message "Copied HD5 %s name: %s" field-type field-name))
       (message "No field or attribute found on this line."))))
 
 ;;;###autoload
@@ -322,7 +322,8 @@ filename with \"-hdf5-viewer\" appended to the end."
           (filehead (with-temp-buffer
                      (set-buffer-multibyte nil)
                      (insert-file-contents-literally filename nil 0 8 t)
-                     (buffer-substring-no-properties 1 9))))
+                     (buffer-substring-no-properties 1 9)))
+          (filename-escaped (shell-quote-argument (expand-file-name filename))))
       (when (string= filehead hdf5-signature)
         (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
                (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
@@ -337,6 +338,7 @@ filename with \"-hdf5-viewer\" appended to the end."
               (rename-buffer new-buffer-name)
               (hdf5-viewer-mode))))
         t)))) ;; bypass find-file
+
 
 ;;;###autoload
 (advice-add 'find-file :before-until #'hdf5-viewer-maybe-startup)
