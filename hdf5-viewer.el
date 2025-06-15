@@ -382,7 +382,7 @@ to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
                      (set-buffer-multibyte nil)
                      (insert-file-contents-literally filename nil 0 8 t)
                      (buffer-substring-no-properties 1 9)))
-          (filename-escaped (shell-quote-argument filename)))
+          (filename-escaped (shell-quote-argument (expand-file-name filename))))
       (when (string= filehead hdf5-signature)
         (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
                (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
