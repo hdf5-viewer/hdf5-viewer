@@ -341,16 +341,22 @@ the field is a group, then it is the same as
         (hdf5-viewer--run-parser "--plot-dataset" field hdf5-viewer-file)
       (message "No dataset found on this line."))))
 
-;;;###autoload
 (define-derived-mode hdf5-viewer-mode special-mode "HDF5"
-  "Major mode for viewing HDF5 files."
-  (setq-local buffer-read-only t)
-  (setq-local hdf5-viewer-file hdf5-viewer--buffer-filename)
-  (setq-local hdf5-viewer-root "/")
-  (hdf5-viewer--display-root 0))
+  "Major mode for viewing HDF5 files.
 
-;;;###autoload
-(defun hdf5-viewer-maybe-startup (&optional filename _wildcards)
+In order to protect HDF5 data file from corruption, enable
+`hdf-viewer-find-file-mode' so that the data file does not
+actually get loaded into a buffer.  This package works by
+interfacing with the HDF5 file via python library calls."
+
+  (if (not hdf5-viewer-find-file-mode)
+      (message "To use this mode, enable `hdf5-viewer-find-file-mode' and reopen the file.")
+    (setq-local buffer-read-only t)
+    (setq-local hdf5-viewer-file hdf5-viewer--buffer-filename)
+    (setq-local hdf5-viewer-root "/")
+    (hdf5-viewer--display-root 0)))
+
+(defun hdf5-viewer-bypass-find-file (&optional filename _wildcards)
   "Advice to avoid loading HDF5 files into the buffer.
 
 HDF5 files can be very large and `hdf5-viewer' does not need the file
@@ -393,7 +399,12 @@ to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
         t)))) ;; bypass find-file
 
 ;;;###autoload
-(advice-add 'find-file :before-until #'hdf5-viewer-maybe-startup)
+(define-minor-mode hdf5-viewer-find-file-mode
+  "Global minor mode to enable/disable hdf5-viewer-mode."
+  :global     t
+  (if hdf5-viewer-find-file-mode
+      (advice-add 'find-file :before-until #'hdf5-viewer-bypass-find-file)
+    (advice-remove 'find-file #'hdf5-viewer-bypass-find-file)))
 
 (provide 'hdf5-viewer)
 
