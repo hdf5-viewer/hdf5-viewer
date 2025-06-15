@@ -339,7 +339,7 @@ filename with \"-hdf5-viewer\" appended to the end."
             (let ((new-buffer-name (generate-new-buffer-name this-buffer-name)))
               (switch-to-buffer (get-buffer-create new-buffer-name))
               (setq default-directory (file-name-directory filename))
-              (setq hdf5-viewer--buffer-filename filename)
+              (setq hdf5-viewer--buffer-filename filename-escaped)
               (set-visited-file-name this-buffer-filename)
               (rename-buffer new-buffer-name)
               (hdf5-viewer-mode))))
