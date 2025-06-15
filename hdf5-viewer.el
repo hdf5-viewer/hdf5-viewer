@@ -317,7 +317,7 @@ as normal files, without `hdf5-viewer'."
                      (set-buffer-multibyte nil)
                      (insert-file-contents-literally filename nil 0 8 t)
                      (buffer-substring-no-properties 1 9)))
-          (filename-escaped (shell-quote-argument filename)))
+          (filename-escaped (shell-quote-argument (expand-file-name filename))))
       (when (string= filehead hdf5-signature)
         (let ((hdf5-viewer-buffer-name (concat "*hdf5: "
                                         (file-name-nondirectory filename)
