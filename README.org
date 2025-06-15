@@ -15,7 +15,7 @@ accidental corruption.
 
 ~(require 'hdf5-mode)~
 
-~(hdf5-viewer-find-file-mode t)
+~(hdf5-viewer-find-file-mode t)~
 
 ** keybindings
 
@@ -26,3 +26,13 @@ accidental corruption.
 | preview-field                     | '             |
 | back (go up the tree)             | b, DEL, S-SPC |
 | copy field or attribute name      | w             |
+
+** screenshots
+
+   - Fields of ~/g1/g1.1~ in file ~tall.h5~
+     #+DOWNLOADED: screenshot @ 2025-06-15 12:42:49
+     [[file:.figs/Emacs_HDF5_Viewer_Mode/2025-06-15_12-42-49_screenshot.png]]
+
+   - Dataset ~/g1/g1.1/dset1.1.1~ in file ~tall.h5~
+     #+DOWNLOADED: screenshot @ 2025-06-15 12:44:24
+     [[file:.figs/Emacs_HDF5_Viewer_Mode/2025-06-15_12-44-24_screenshot.png]]
