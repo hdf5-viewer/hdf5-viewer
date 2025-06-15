@@ -263,9 +263,9 @@ DIRECTION indicates which way we are navigating the heirarchy:
                     hdf5-viewer--forward-point-list nil)
               (hdf5-viewer--display-fields 0)))
         (let* ((output (hdf5-viewer--run-parser "--read-dataset" field hdf5-viewer-file))
-               (parent-buf (format "%s" (current-buffer)))
-               (parent-nostars (substring parent-buf 1 (1- (length parent-buf)))))
-          (with-current-buffer (get-buffer-create (format "*%s%s*" parent-nostars field))
+               (parent-buf (string-split (buffer-name (current-buffer)) "*" t))
+               (dataset-buf (format "*%s%s*%s" (pop parent-buf) field (apply 'concat parent-buf))))
+          (with-current-buffer (get-buffer-create dataset-buf)
             (let ((inhibit-read-only t))
               (erase-buffer)
               (setq-local truncate-lines t)
@@ -309,7 +309,13 @@ buffer named \"*hdf5: FILENAME*\" and start hdf5-viewer.
 
 The WILDCARDS flag is not used by this advice and is passed on to
 `find-file'.  HDF5 files referenced by wildcards will be opened
-as normal files, without `hdf5-viewer'."
+as normal files, without `hdf5-viewer'.
+
+For files with the same nondirectory names, the buffer names are
+disambituated with `generate-new-buffer-name', which appends an
+incrementing \"<#>\" to the buffer name.  The `buffer-file-name'
+is set uniquely, via `set-visited-file-name', to the HDF5
+filename with \"-hdf5-viewer\" appended to the end."
 
   (if (not (file-regular-p filename)) nil
     (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
@@ -319,23 +325,20 @@ as normal files, without `hdf5-viewer'."
                      (buffer-substring-no-properties 1 9)))
           (filename-escaped (shell-quote-argument (expand-file-name filename))))
       (when (string= filehead hdf5-signature)
-        (let ((hdf5-viewer-buffer-name (concat "*hdf5: "
-                                        (file-name-nondirectory filename)
-                                        "*")))
-          ;; for later:
-          ;; if hdf5-viewer-buffer-name corresponds to an existing buffer
-          ;;    if (string= filename hdf5-viewer--buffer-filename)
-          ;;       switch to buffer
-          ;;    else
-          ;;       create/switch to buffer with unique name
-          ;;       setq hdf5-viewer--buffer-filename filename
-          ;;       (hdf5-viewer-mode)
-          ;; else run next 3 lines
-          (switch-to-buffer (get-buffer-create hdf5-viewer-buffer-name));; need to uniquify this name (later)
-          (setq default-directory (file-name-directory filename))
-          (setq hdf5-viewer--buffer-filename filename-escaped) ;;hdf5-viewer operates on hdf5-viewer--buffer-filename
-          (hdf5-viewer-mode)
-          t))))) ;; bypass find-file
+        (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
+               (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
+               (this-buffer (find-buffer-visiting this-buffer-filename)))
+          (if this-buffer
+              (switch-to-buffer this-buffer)
+            (let ((new-buffer-name (generate-new-buffer-name this-buffer-name)))
+              (switch-to-buffer (get-buffer-create new-buffer-name))
+              (setq default-directory (file-name-directory filename))
+              (setq hdf5-viewer--buffer-filename filename)
+              (set-visited-file-name this-buffer-filename)
+              (rename-buffer new-buffer-name)
+              (hdf5-viewer-mode))))
+        t)))) ;; bypass find-file
+
 
 ;;;###autoload
 (advice-add 'find-file :before-until #'hdf5-viewer-maybe-startup)
