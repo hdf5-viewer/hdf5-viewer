@@ -8,7 +8,7 @@ import sys
 import argparse
 import warnings
 import numpy as np
-import matplotlib.pyplot as plt
+#from matplotlib.pyplot import plot, imshow, show, title
 import h5py
 
 def meta_dict(obj) -> dict:
@@ -103,13 +103,13 @@ class H5Instance:
         if not isinstance(obj, h5py.Dataset):
             raise TypeError("Argument to --plot-dataset must be a Dataset.")
         if obj.ndim == 1:
-            plt.plot(obj[()])
+            plot(obj[()])
         elif obj.ndim ==2:
-            plt.imshow(obj[()])
+            imshow(obj[()])
         else:
             raise NotImplementedError("Plotting only supported for 1 or 2 dimensional datasets.")
-        plt.title(f'{obj.name}')
-        plt.show()
+        title(f'{obj.name}')
+        show()
 
     def is_group(self, field: str) -> dict:
         """True for Groups.  False otherwise."""
