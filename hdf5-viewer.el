@@ -242,11 +242,11 @@ DIRECTION indicates which way we are navigating the heirarchy:
   (when (hdf5-viewer--is-field field)
     (let ((field  (hdf5-viewer--fix-path field))
           (output (hdf5-viewer--run-parser "--preview-field" field hdf5-viewer-file)))
-      (message (format "%s %s %s:\n%s"
-                       (propertize field 'face 'bold)
-                       (gethash "shape" output "")
-                       (gethash "dtype" output "")
-                       (gethash "data" output))))))
+      (message "%s %s %s:\n%s"
+               (propertize field 'face 'bold)
+               (gethash "shape" output "")
+               (gethash "dtype" output "")
+               (gethash "data" output)))))
 
 (defun hdf5-viewer-read-field-at-cursor ()
   "Display field contents at cursor in new buffer."
@@ -321,19 +321,25 @@ the field is a group, then it is the same as
     (if field-name
         (let ((field-type (if (hdf5-viewer--is-field field-name) "field" "attribute")))
           (kill-new field-name)
-          (message (format "Copied HD5 %s name: %s" field-type field-name)))
+          (message "Copied HD5 %s name: %s" field-type field-name))
       (message "No field or attribute found on this line."))))
 
-;;;###autoload
 (define-derived-mode hdf5-viewer-mode special-mode "HDF5"
-  "Major mode for viewing HDF5 files."
-  (setq-local buffer-read-only t)
-  (setq-local hdf5-viewer-file hdf5-viewer--buffer-filename)
-  (setq-local hdf5-viewer-root "/")
-  (hdf5-viewer--display-root 0))
+  "Major mode for viewing HDF5 files.
 
-;;;###autoload
-(defun hdf5-viewer-maybe-startup (&optional filename _wildcards)
+In order to protect HDF5 data file from corruption, enable
+`hdf-viewer-find-file-mode' so that the data file does not
+actually get loaded into a buffer.  This package works by
+interfacing with the HDF5 file via python library calls."
+
+  (if (not hdf5-viewer-find-file-mode)
+      (message "To use this mode, enable `hdf5-viewer-find-file-mode' and reopen the file.")
+    (setq-local buffer-read-only t)
+    (setq-local hdf5-viewer-file hdf5-viewer--buffer-filename)
+    (setq-local hdf5-viewer-root "/")
+    (hdf5-viewer--display-root 0)))
+
+(defun hdf5-viewer-bypass-find-file (&optional filename _wildcards)
   "Advice to avoid loading HDF5 files into the buffer.
 
 HDF5 files can be very large and `hdf5-viewer' does not need the file
@@ -358,7 +364,8 @@ to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
           (filehead (with-temp-buffer
                      (set-buffer-multibyte nil)
                      (insert-file-contents-literally filename nil 0 8 t)
-                     (buffer-substring-no-properties 1 9))))
+                     (buffer-substring-no-properties 1 9)))
+          (filename-escaped (shell-quote-argument (expand-file-name filename))))
       (when (string= filehead hdf5-signature)
         (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
                (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
@@ -368,14 +375,20 @@ to the HDF5 filename with \"-hdf5-viewer\" appended to the end."
             (let ((new-buffer-name (generate-new-buffer-name this-buffer-name)))
               (switch-to-buffer (get-buffer-create new-buffer-name))
               (setq default-directory (file-name-directory filename))
-              (setq hdf5-viewer--buffer-filename filename)
+              (setq hdf5-viewer--buffer-filename filename-escaped)
               (set-visited-file-name this-buffer-filename)
               (rename-buffer new-buffer-name)
               (hdf5-viewer-mode))))
         t)))) ;; bypass find-file
 
+
 ;;;###autoload
-(advice-add 'find-file :before-until #'hdf5-viewer-maybe-startup)
+(define-minor-mode hdf5-viewer-find-file-mode
+  "Global minor mode to enable/disable hdf5-viewer-mode."
+  :global     t
+  (if hdf5-viewer-find-file-mode
+      (advice-add 'find-file :before-until #'hdf5-viewer-bypass-find-file)
+    (advice-remove 'find-file #'hdf5-viewer-bypass-find-file)))
 
 (provide 'hdf5-viewer)
 

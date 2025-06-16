@@ -1,19 +1,21 @@
 * Emacs HDF5 Viewer Mode
 
-This package facilitates
-[[https://en.wikipedia.org/wiki/Hierarchical_Data_Format][HDF5]] file navigation
-with a =dired=-like interface.
+This package facilitates [[https://en.wikipedia.org/wiki/Hierarchical_Data_Format][HDF5]] file navigation with a =dired=-like interface.
 
-Advice (=hdf5-mode-maybe-startup=) is provided to =find-file= so that HDF5
-files, which can be very large, are not read into any buffer; rather, the
-python functions provided access only the parts of the file that are of interest
-to the user.
+In order to use the mode, you must first enable the global minor mode
+=hdf5-viewer-find-file-mode=, which enables (or disables) the advising function
+=hdf5-viewer-bypass-find-file=.  The =...bypass...= function associates an
+=hdf5-viewer-mode= buffer associated with the HDF5 file.  This serves the dual
+purpose of speeding up access into very large files and protecting the data from
+accidental corruption.
 
 ** Installation notes
 
 ~pip install h5py~
 
 ~(require 'hdf5-mode)~
+
+~(hdf5-viewer-find-file-mode t)~
 
 ** keybindings
 
@@ -24,3 +26,13 @@ to the user.
 | preview-field                     | '             |
 | back (go up the tree)             | b, DEL, S-SPC |
 | copy field or attribute name      | w             |
+
+** screenshots
+
+   - Fields of ~/g1/g1.1~ in file ~tall.h5~
+     #+DOWNLOADED: screenshot @ 2025-06-15 12:42:49
+     [[file:.figs/Emacs_HDF5_Viewer_Mode/2025-06-15_12-42-49_screenshot.png]]
+
+   - Dataset ~/g1/g1.1/dset1.1.1~ in file ~tall.h5~
+     #+DOWNLOADED: screenshot @ 2025-06-15 12:44:24
+     [[file:.figs/Emacs_HDF5_Viewer_Mode/2025-06-15_12-44-24_screenshot.png]]
