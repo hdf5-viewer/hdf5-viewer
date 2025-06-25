@@ -264,7 +264,7 @@ DIRECTION indicates which way we are navigating the heirarchy:
               (hdf5-viewer--display-fields 0)))
         (let* ((output (hdf5-viewer--run-parser "--read-dataset" field hdf5-viewer-file))
                (parent-buf (string-split (buffer-name (current-buffer)) "*" t))
-               (dataset-buf (format "*%s%s*%s" (pop parent-buf) field (apply 'concat parent-buf))))
+               (dataset-buf (format "*%s%s*%s" (pop parent-buf) field (apply #'concat parent-buf))))
           (with-current-buffer (get-buffer-create dataset-buf)
             (let ((inhibit-read-only t))
               (erase-buffer)
@@ -288,21 +288,6 @@ DIRECTION indicates which way we are navigating the heirarchy:
           (message "Copied HD5 %s name: %s" field-type field-name))
       (message "No field or attribute found on this line."))))
 
-(define-derived-mode hdf5-viewer-mode special-mode "HDF5"
-  "Major mode for viewing HDF5 files.
-
-In order to protect HDF5 data file from corruption, enable
-`hdf-viewer-find-file-mode' so that the data file does not
-actually get loaded into a buffer.  This package works by
-interfacing with the HDF5 file via python library calls."
-
-  (if (not hdf5-viewer-find-file-mode)
-      (message "To use this mode, enable `hdf5-viewer-find-file-mode' and reopen the file.")
-    (setq-local buffer-read-only t)
-    (setq-local hdf5-viewer-file hdf5-viewer--buffer-filename)
-    (setq-local hdf5-viewer-root "/")
-    (hdf5-viewer--display-fields 0)))
-
 (defun hdf5-viewer-bypass-find-file (&optional filename _wildcards)
   "Advice to avoid loading HDF5 files into the buffer.
 
@@ -319,9 +304,9 @@ as normal files, without `hdf5-viewer'.
 
 For files with the same nondirectory names, the buffer names are
 disambituated with `generate-new-buffer-name', which appends an
-incrementing \"<#>\" to the buffer name.  The `buffer-file-name'
-is set uniquely, via `set-visited-file-name', to the HDF5
-filename with \"-hdf5-viewer\" appended to the end."
+incrementing \"<#>\" to the buffer name.  The variable
+`buffer-file-name' is set uniquely, via `set-visited-file-name', to the
+HDF5 filename with \"-hdf5-viewer\" appended to the end."
 
   (if (not (file-regular-p filename)) nil
     (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
@@ -353,6 +338,21 @@ filename with \"-hdf5-viewer\" appended to the end."
   (if hdf5-viewer-find-file-mode
       (advice-add 'find-file :before-until #'hdf5-viewer-bypass-find-file)
     (advice-remove 'find-file #'hdf5-viewer-bypass-find-file)))
+
+(define-derived-mode hdf5-viewer-mode special-mode "HDF5"
+  "Major mode for viewing HDF5 files.
+
+In order to protect HDF5 data file from corruption, enable
+`hdf-viewer-find-file-mode' so that the data file does not
+actually get loaded into a buffer.  This package works by
+interfacing with the HDF5 file via python library calls."
+
+  (if (not hdf5-viewer-find-file-mode)
+      (message "To use this mode, enable `hdf5-viewer-find-file-mode' and reopen the file.")
+    (setq-local buffer-read-only t)
+    (setq-local hdf5-viewer-file hdf5-viewer--buffer-filename)
+    (setq-local hdf5-viewer-root "/")
+    (hdf5-viewer--display-fields 0)))
 
 (provide 'hdf5-viewer)
 
