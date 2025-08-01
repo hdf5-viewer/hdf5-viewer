@@ -35,19 +35,20 @@
   "Major mode for viewing HDF5 files."
   :group 'data)
 
-(defcustom hdf5-viewer-python-command "python3"
-  "Python interpreter to execute h5parse.py.  Must have h5py."
+(defcustom hdf5-viewer-python-command "python"
+  "Python interpreter to execute h5parse.py.  Must have h5py.
+
+  This variable is used to build the call to h5parse.py, so after
+  customizing, reload hdf5-viewer."
   :type 'string
   :group 'hdf5-viewer)
 
 (makunbound 'hdf5-viewer-parse-command)
-(defcustom hdf5-viewer-parse-command
+(defvar hdf5-viewer-parse-command
   (format "%s %sh5parse.py"
           hdf5-viewer-python-command
           (file-name-directory (or load-file-name (buffer-file-name))))
-  "Shell command to launch h5parse.py script."
-  :type 'string
-  :group 'hdf5-viewer)
+  "Shell command to launch h5parse.py script.")
 
 (defvar hdf5-viewer-mode-map
   (let ((map (make-sparse-keymap)))
