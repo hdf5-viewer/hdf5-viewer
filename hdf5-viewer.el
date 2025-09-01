@@ -309,26 +309,27 @@ incrementing \"<#>\" to the buffer name.  The variable
 HDF5 filename with \"-hdf5-viewer\" appended to the end."
 
   (if (not (file-regular-p filename)) nil
-    (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
-          (filehead (with-temp-buffer
-                     (set-buffer-multibyte nil)
-                     (insert-file-contents-literally filename nil 0 8 t)
-                     (buffer-substring-no-properties 1 9)))
-          (filename-escaped (shell-quote-argument (expand-file-name filename))))
-      (when (string= filehead hdf5-signature)
-        (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
-               (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
-               (this-buffer (find-buffer-visiting this-buffer-filename)))
-          (if this-buffer
-              (switch-to-buffer this-buffer)
-            (let ((new-buffer-name (generate-new-buffer-name this-buffer-name)))
-              (switch-to-buffer (get-buffer-create new-buffer-name))
-              (setq default-directory (file-name-directory filename))
-              (setq hdf5-viewer--buffer-filename filename-escaped)
-              (set-visited-file-name this-buffer-filename)
-              (rename-buffer new-buffer-name)
-              (hdf5-viewer-mode))))
-        t)))) ;; bypass find-file
+    (if (< (nth 7 (file-attributes filename)) 9) nil
+      (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
+            (filehead (with-temp-buffer
+                        (set-buffer-multibyte nil)
+                        (insert-file-contents-literally filename nil 0 8 t)
+                        (buffer-substring-no-properties 1 9)))
+            (filename-escaped (shell-quote-argument (expand-file-name filename))))
+        (when (string= filehead hdf5-signature)
+          (let* ((this-buffer-filename (concat filename "-hdf5-viewer"))
+                 (this-buffer-name (format "*hdf5: %s*" (file-name-nondirectory filename)))
+                 (this-buffer (find-buffer-visiting this-buffer-filename)))
+            (if this-buffer
+                (switch-to-buffer this-buffer)
+              (let ((new-buffer-name (generate-new-buffer-name this-buffer-name)))
+                (switch-to-buffer (get-buffer-create new-buffer-name))
+                (setq default-directory (file-name-directory filename))
+                (setq hdf5-viewer--buffer-filename filename-escaped)
+                (set-visited-file-name this-buffer-filename)
+                (rename-buffer new-buffer-name)
+                (hdf5-viewer-mode))))
+          t))))) ;; bypass find-file
 
 
 ;;;###autoload
