@@ -309,7 +309,7 @@ incrementing \"<#>\" to the buffer name.  The variable
 HDF5 filename with \"-hdf5-viewer\" appended to the end."
 
   (if (not (file-regular-p filename)) nil
-    (if (< (nth 7 (file-attributes filename)) 9) nil
+    (if (< (file-attribute-size (file-attributes filename)) 9) nil
       (let ((hdf5-signature (unibyte-string #x89 #x48 #x44 #x46 #x0d #x0a #x1a #x0a))
             (filehead (with-temp-buffer
                         (set-buffer-multibyte nil)
